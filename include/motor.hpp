@@ -21,7 +21,7 @@ public:
     
     MotorInfo() = default;
     
-    MotorInfo(double p_ap, double p_d, double p_wr, SpeedRange p_speed, SpeedRange p_intSpeed, bool p_reversed = false)
+    MotorInfo(double p_ap, double p_d, double p_wr, SpeedRange p_speed, SpeedRange p_intSpeed, bool p_reversed = false) noexcept
     : anglePos(p_ap), distance(p_d), wheelR(p_wr), speedRange(p_speed), interfaceSpeedRange(p_intSpeed), isReversed(p_reversed) {}
     
 };
@@ -35,8 +35,9 @@ public:
     
     MotorInfoIncluded() = default;
     
-    MotorInfoIncluded(const MotorInfo& p_info) : info(p_info) {}
-    MotorInfo Info() const {
+    MotorInfoIncluded(const MotorInfo& p_info) noexcept : info(p_info) {}
+    
+    virtual MotorInfo Info() const {
         return info;
     }
 };
@@ -60,11 +61,11 @@ protected:
 public:
     using MotorInfoIncluded::MotorInfoIncluded;
     
-    virtual util::Error setSpeed(Speed speed) {
+    [[nodiscard]] virtual util::Error setSpeed(Speed speed) noexcept override {
         return setSpeedRaw(info.interfaceSpeedRange.mapValueToRange(info.interfaceSpeedRange.restrict(info.isReversed ? -speed : speed), info.speedRange));
     }
     
-    virtual util::Result<Speed> getSpeed() const {
+    [[nodiscard]] virtual util::Result<Speed> getSpeed() const noexcept override {
         util::Result<Speed> rawSpeed = getSpeedRaw();
         if(rawSpeed) return rawSpeed;
         
@@ -73,13 +74,12 @@ public:
         return info.isReversed ? -mapped : mapped;
     }
 
-    virtual bool inSpeedRange(Speed speed) const {
+    virtual bool inSpeedRange(Speed speed) const noexcept {
         return info.interfaceSpeedRange.contains(speed);
     }
     
-    virtual util::Error setSpeedInRange(Speed speed, SpeedRange range) {
-        if (!range.contains(speed)) return util::Error(util::ErrorCode::invalidArgument, "given speed is not in it's stated range");
-        return setSpeed(info.interfaceSpeedRange.mapValueFromRange(speed, range));
+    [[nodiscard]] virtual util::Error setSpeedInRange(Speed speed, SpeedRange range) noexcept {
+        return setSpeed(info.interfaceSpeedRange.mapValueFromRange(range.restrict(speed), range));
     }
 };
 

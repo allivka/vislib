@@ -2,7 +2,7 @@
 
 robotics c++ template library
 
-## version: 0.0.2
+## version: 0.0.4
 
 ## Description
 
