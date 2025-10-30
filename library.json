@@ -11,10 +11,13 @@
   "authors":
   [
     {
-      "name": "Алиев Даниил",
+      "name": "Aliev Daniil / Алиев Даниил",
       "email": "allivka1920@gmail.com"
     }
   ],
+  "build": {
+    "includeDir": "include"
+  },
   "license": "MIT",
   "dependencies": {
     
