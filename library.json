@@ -1,6 +1,6 @@
 {
   "name": "vislib",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A \"vislib\" library provides simple templated solutions for containers, simple memory management and utility and math functions.\nAlso includes abstract classes or interfaces for control of some device types",
   "keywords": "motor, template, container",
   "repository":

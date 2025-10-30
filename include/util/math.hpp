@@ -6,23 +6,23 @@
 
 namespace vislib::util {
 
-template <typename T> T abs(const T& x) {
+template <typename T> T absF(const T& x) {
     if (x < (T)0) return x * (T)-1;
     return x;
 }
 
-template <typename T> c_t sign(const T& x) {
+template <typename T> c_t signF(const T& x) {
     if (x < (T)0) return -1;
     if (x > (T)0) return 1;
     return 0;
 }
 
-template <typename T> T min(const T& x, const T& y) {
+template <typename T> T minF(const T& x, const T& y) {
     if(x < y) return x;
     return y;
 }
 
-template <typename T> T max(const T& x, const T& y) {
+template <typename T> T maxF(const T& x, const T& y) {
     if(x > y) return x;
     return y;
 }
