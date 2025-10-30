@@ -1,0 +1,26 @@
+{
+  "name": "vislib",
+  "version": "0.0.1",
+  "description": "A \"vislib\" library provides simple templated solutions for containers, simple memory management and utility and math functions.\nAlso includes abstract classes or interfaces for control of some device types",
+  "keywords": "motor, template, container",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/allivka/vislib.git"
+  },
+  "authors":
+  [
+    {
+      "name": "alivka",
+      "email": "allivka1920@gmail.com",
+      "url": ""
+    }
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "dependencies": {
+    
+  },
+  "frameworks": "*",
+  "platforms": "*"
+}
