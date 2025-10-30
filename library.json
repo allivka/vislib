@@ -11,13 +11,11 @@
   "authors":
   [
     {
-      "name": "alivka",
-      "email": "allivka1920@gmail.com",
-      "url": ""
+      "name": "Алиев Даниил",
+      "email": "allivka1920@gmail.com"
     }
   ],
   "license": "MIT",
-  "homepage": "",
   "dependencies": {
     
   },
