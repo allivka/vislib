@@ -47,14 +47,17 @@ public:
             return util::Error(util::ErrorCode::invalidArgument, "Cannot apply speeds set to controller set as there are different amount of them");
         }
         
+        util::Error err;
+        
         for(size_t i = 0; i < controllers.Size(); i++) {
-            util::Error err = controllers.at(i)().setSpeed(speeds.at(i)());
-            if(err) {
-                return {err.errcode, "Could not apply speed to motor controller, error encountered: " + err.msg};
+            util::Error e = controllers.at(i)().setSpeed(speeds.at(i)());
+            if(e) {
+                err.errcode = e.errcode;
+                err.msg = err.msg + "\nAnother error encountered: Could not apply speed to motor controller, error encountered: " + e.msg;
             }
         }
         
-        return util::ErrorCode::success;
+        return err;
     }
     
     [[nodiscard]] util::Error setSpeedsInRanges(PlatformMotorSpeeds speeds, util::Array<motor::SpeedRange> ranges) noexcept {
@@ -63,15 +66,17 @@ public:
                 "Cannot apply speeds from different ranges set to controller set as there are different amounts of them");
         }
         
+        util::Error err;
+        
         for(size_t i = 0; i < controllers.Size(); i++) {
-            util::Error err = controllers.at(i)().setSpeedInRange(speeds.at(i)(), ranges[i]);
-            if(err != util::ErrorCode::success) {
-                err.msg = "Could not apply speed to motor controller, error encountered: " + err.msg;
-                return err;
+            util::Error e = controllers.at(i)().setSpeedInRange(speeds.at(i)(), ranges[i]);
+            if(e) {
+                err.errcode = e.errcode;
+                err.msg = err.msg + "\nAnother error encountered: Could not apply speed to motor controller, error encountered: " + e.msg;
             }
         }
         
-        return util::ErrorCode::success;
+        return err;
     }
     
     template<typename C> [[nodiscard]] util::Error init(const util::Array<C>& ports) noexcept {
