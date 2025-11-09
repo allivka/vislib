@@ -103,7 +103,7 @@ public:
             if(e) {
                 return util::Error(util::ErrorCode::initFailed, 
                     "failed initializing one of the platform motors, failed motor controller initialization at index "
-                    + util::to_string(i) + " and port with value " + util::to_string(static_cast<unsigned long long>(p())) + ": " + e.msg);
+                    + util::to_string(i) + " and port with value " + util::to_string(static_cast<size_t>(p())) + ": " + e.msg);
             }
         }
         

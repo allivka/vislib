@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 namespace vislib {
 
 using ull_t = unsigned long long;
@@ -15,7 +17,6 @@ using c_t = char;
 using c16_t = char16_t;
 using c32_t = char32_t;
 
-using size_t = unsigned long long;
 using byte = unsigned char;
 
 } //namespace vislib::util

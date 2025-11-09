@@ -350,7 +350,7 @@ inline bool operator!=(const char* lhs, const String& rhs) noexcept {
     return !(rhs == lhs);
 }
 
-inline String to_string(unsigned long long value) noexcept {
+inline String to_string(size_t value) noexcept {
     if (value == 0) return String("0");
     char buf[32];
     size_t idx = 0;
@@ -368,11 +368,11 @@ inline String to_string(unsigned long long value) noexcept {
 
 inline String to_string(long long value) noexcept {
     if (value < 0) {
-        unsigned long long uv = (unsigned long long)(-value);
+        size_t uv = static_cast<size_t>(-value);
         String s = String("-") + to_string(uv);
         return s;
     }
-    return to_string((unsigned long long)value);
+    return to_string(static_cast<size_t>(value));
 }
 
 } //namespace vislib::util
