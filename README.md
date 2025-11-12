@@ -2,11 +2,12 @@
 
 robotics c++ template library
 
-## version: 0.0.6
+## version: 0.0.7
 
 ## Description
 
-A "vislib" library provides simple templated solutions for containers, simple memory management and utility and math functions.\nAlso includes abstract classes or interfaces for control of some device types
+A "vislib" library provides simple templated solutions for containers, simple memory management and utility and math functions.
+Also includes abstract classes or interfaces for control of some device types + some controllers and abstractions related to robotics concepts.
 
 ## Installation
 

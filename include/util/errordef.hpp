@@ -5,8 +5,10 @@ namespace vislib::util {
 enum class ErrorCode {
     success,
     failure,
+    reachedTheTarget,
     initFailed,
     invalidArgument,
+    invalidConfiguration,
     failedConnection,
     outOfRange,
     indexOutOfRange,

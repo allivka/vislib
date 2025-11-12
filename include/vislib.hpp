@@ -4,3 +4,4 @@
 #include "motor.hpp"
 #include "platform.hpp"
 #include "pid.hpp"
+#include "trapezoidalMotion.hpp"

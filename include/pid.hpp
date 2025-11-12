@@ -7,17 +7,16 @@ namespace vislib {
 
 template <typename T, typename TimeType = size_t> class PIDRegulator {
 protected:
-    T Kp;
-    T Ki;
-    T Kd;
+    T Kp{};
+    T Ki{};
+    T Kd{};
     T errold{};
     T integral{};
     T target{};
     TimeType prevTime{};
     
 public:
-    PIDRegulator(T Kp, T Ki, T Kd) noexcept : Kp(Kp), Ki(Ki), Kd(Kd) { }
-    PIDRegulator(T Kp, T Ki, T Kd, T target) noexcept : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
+    PIDRegulator(T Kp, T Ki, T Kd, T target = T{}) noexcept : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
 
     
     T compute(T measured, T target, TimeType time) noexcept {
