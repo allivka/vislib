@@ -40,14 +40,14 @@ protected:
 
 public:
 
-    ReturnResult(T v) noexcept : errorFlag(false), value(v) { }
+    ReturnResult(const T& v) noexcept(noexcept(T(v))) : errorFlag(false), value(v) { }
 
-    ReturnResult(E e) noexcept : errorFlag(true), err(e) { }
+    ReturnResult(const E& e) noexcept(noexcept(E(e))) : errorFlag(true), err(e) { }
 
-    bool isError() const noexcept { return errorFlag; }
-    bool isOK() const noexcept { return !errorFlag; }
+    inline constexpr bool isError() const noexcept { return errorFlag; }
+    inline constexpr bool isOK() const noexcept { return !errorFlag; }
 
-    bool getValue(T& out) const noexcept {
+    bool getValue(T& out) const noexcept(noexcept(out = value)) {
         if (!errorFlag) {
             out = value;
             return true;
@@ -55,7 +55,7 @@ public:
         return false;
     }
 
-    bool getError(E& out) const noexcept {
+    bool getError(E& out) const noexcept(noexcept(out = err)) {
         if (errorFlag) {
             out = err;
             return true;
@@ -63,31 +63,35 @@ public:
         return false;
     }
 
-    operator T() const noexcept { return value; }
-    operator E() const noexcept { return err; }
+    operator T() const noexcept(noexcept(T(value))) { return value; }
+    operator E() const noexcept(noexcept(E(err))) { return err; }
 
-    operator bool() const noexcept { return errorFlag; }
+    inline constexpr operator bool() const noexcept { return errorFlag; }
 
-    T operator()() const noexcept { return value; }
+    T operator()() const noexcept(noexcept(T(value))) { return value; }
 
-    T Value() const noexcept { return value; }
+    inline constexpr T Value() const noexcept(noexcept(T(value))) { return value; }
 
-    E Err() const noexcept { return err; }
+    inline constexpr E Err() const noexcept(noexcept(E(err))) { return err; }
 };
 
-template <typename T> class Result : public ReturnResult<T, Error> {
+template <typename T>
+class Result : public ReturnResult<T, Error> {
 public:
-    Result(T v) noexcept : ReturnResult<T, Error>(v) {}
-    Result(Error e) noexcept : ReturnResult<T, Error>(e) {}
+    Result(T v) noexcept(noexcept(ReturnResult<T, Error>(v)))
+        : ReturnResult<T, Error>(v) {}
+
+    Result(Error e) noexcept(noexcept(ReturnResult<T, Error>(e)))
+        : ReturnResult<T, Error>(e) {}
 };
 
-template <typename T> class Result<T&> : public ReturnResult<T*, Error> {
+template <typename T>
+class Result<T&> : public ReturnResult<T*, Error> {
 public:
     Result(T& v) noexcept : ReturnResult<T*, Error>(&v) {}
     Result(Error e) noexcept : ReturnResult<T*, Error>(e) {}
-    
-    T& operator()() const noexcept { return *(this->value); }
 
+    T& operator()() const noexcept { return *(this->value); }
     T& Value() const noexcept { return *(this->value); }
 };
 

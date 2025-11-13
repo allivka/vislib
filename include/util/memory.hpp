@@ -6,7 +6,7 @@ template <typename T> constexpr T&& move(T& t) noexcept {
     return static_cast<T&&>(t);
 }
 
-template <typename T> constexpr void swap(T& x, T& y) noexcept {
+template <typename T> constexpr void swap(T& x, T& y) noexcept(noexcept(T(move(x))) && noexcept(x = move(y)) && noexcept(y = move(x))) {
     T temp = move(x);
     x = move(y);
     y = move(temp);
@@ -23,7 +23,7 @@ protected:
 public:
     UniquePtr() = default;
 
-    UniquePtr(const T& v) noexcept {
+    UniquePtr(const T& v) {
         ptr = new T(v);
     }
 
@@ -48,7 +48,7 @@ public:
         return ptr;
     }
 
-    explicit operator bool() const noexcept {
+    inline explicit operator bool() const noexcept {
         return ptr != nullptr;
     }
 
@@ -61,7 +61,7 @@ public:
         return *this;
     }
 
-    UniquePtr<T>& operator=(const T& v) noexcept {
+    UniquePtr<T>& operator=(const T& v) {
         if(ptr == nullptr) {
             ptr = new T(v);
         } else {
@@ -70,7 +70,7 @@ public:
         return *this;
     }
 
-    T* get() const noexcept {
+    inline T* get() const noexcept {
         return ptr;
     }
 

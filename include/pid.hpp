@@ -2,6 +2,7 @@
 
 #include "util/errordef.hpp"
 #include "util/types.hpp"
+#include "util/exception.hpp"
 
 namespace vislib {
 
@@ -16,10 +17,10 @@ protected:
     TimeType prevTime{};
     
 public:
-    PIDRegulator(T Kp, T Ki, T Kd, T target = T{}) noexcept : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
+    PIDRegulator(const T& Kp, const T& Ki, const T& Kd, const T& Target = T{}) noexcept(util::arithmeticNoexcept<T>()) : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
 
     
-    T compute(T measured, T target, TimeType time) noexcept {
+    [[nodiscard]] T compute(const T& measured, const T& target, const TimeType& time) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
         T error = target - measured;
         
         if (prevTime == 0) {
@@ -44,15 +45,15 @@ public:
         
     }
     
-    T compute(T measured, TimeType time) noexcept {
+    inline T compute(const T& measured, const TimeType& time) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
         return compute(measured, this->target, time);
     }
     
-    void setTarget(T target) noexcept {
+    inline void setTarget(const T& target) noexcept(util::arithmeticNoexcept<T>()) {
         this->target = target;
     }
     
-    T getTarget() const noexcept {
+    inline constexpr T getTarget() const noexcept {
         return target;
     }
     

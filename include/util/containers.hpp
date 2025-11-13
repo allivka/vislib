@@ -10,7 +10,6 @@ private:
     T data[SIZE];
 
 public:
-
     DefinedArray() noexcept {
         for(size_t i = 0; i < SIZE; i++) data[i] = T();
     }
@@ -38,11 +37,11 @@ public:
         return *this;
     }
 
-    T& operator[](size_t index) noexcept {
+    inline T& operator[](size_t index) noexcept {
         return data[index];
     }
     
-    const T& operator[](size_t index) const noexcept {
+    inline const T& operator[](size_t index) const noexcept {
         return data[index];
     }
 
@@ -60,14 +59,13 @@ public:
         return data[index];
     }
 
-    constexpr size_t size() const noexcept {
+    inline constexpr size_t size() const noexcept {
         return SIZE;
     }
     
-    constexpr bool empty() const noexcept {
+    inline constexpr bool empty() const noexcept {
         return SIZE == 0;
     }
-
 };
 
 template<typename T> class Array {
@@ -109,10 +107,8 @@ public:
 
     Array<T>& operator=(const Array<T>& other) noexcept {
         if (this == &other) return *this;
-
         T* newData = nullptr;
         size_t newSize = 0;
-
         if (other.size > 0 && other.data != nullptr) {
             newData = new T[other.size];
             if (newData) {
@@ -120,11 +116,9 @@ public:
                 for(size_t i = 0; i < newSize; i++) newData[i] = other.data[i];
             }
         }
-
         delete[] data;
         data = newData;
         size = newSize;
-
         return *this;
     }
 
@@ -143,18 +137,17 @@ public:
         if (size != other.size) return false;
         if(data == other.data && data == nullptr) return true;
         if((data == nullptr || other.data == nullptr) && data != other.data) return false;
-
         for(size_t i = 0; i < size; i++) {
             if (data[i] != other.data[i]) return false;
         }
         return true;
     }
 
-    T& operator[](size_t index) noexcept {
+    inline T& operator[](size_t index) noexcept {
         return data[index];
     }
     
-    const T& operator[](size_t index) const noexcept {
+    inline const T& operator[](size_t index) const noexcept {
         return data[index];
     }
 
@@ -178,11 +171,11 @@ public:
         return data[index];
     }
 
-    size_t Size() const noexcept {
+    inline constexpr size_t Size() const noexcept {
         return size;
     }
     
-    bool empty() const noexcept {
+    inline constexpr bool empty() const noexcept {
         return size == 0;
     }
     
@@ -192,11 +185,11 @@ public:
         data = nullptr;
     }
 
-    T* Data() noexcept {
+    inline T* Data() noexcept {
         return data;
     }
     
-    const T* Data() const noexcept {
+    inline const T* Data() const noexcept {
         return data;
     }
 
@@ -208,7 +201,6 @@ public:
         for(size_t i = 0; i < other.size; i++) newArr.data[size + i] = other.data[i];
         return newArr;
     }
-
 };
 
 class String : public Array<char> {
@@ -239,21 +231,21 @@ public:
         size_t len = c_strlen(cstr);
         size_t cap = char_capacity();
         if (len > cap) len = cap;
-        for (size_t i = 0; i < len; ++i) this->Data()[i] = cstr[i];
+        for (size_t i = 0; i < len; i++) this->Data()[i] = cstr[i];
         ensure_null_terminated();
     }
 
     String(const char* cstr, size_t length) noexcept : Array<char>(length + 1) {
         size_t cap = char_capacity();
         size_t copy_len = length <= cap ? length : cap;
-        for (size_t i = 0; i < copy_len; ++i) this->Data()[i] = cstr[i];
+        for (size_t i = 0; i < copy_len; i++) this->Data()[i] = cstr[i];
         ensure_null_terminated();
     }
 
     String(size_t count, char ch) noexcept : Array<char>(count + 1) {
         size_t cap = char_capacity();
         size_t n = count <= cap ? count : cap;
-        for (size_t i = 0; i < n; ++i) this->Data()[i] = ch;
+        for (size_t i = 0; i < n; i++) this->Data()[i] = ch;
         ensure_null_terminated();
     }
 
@@ -267,12 +259,10 @@ public:
 
     size_t length() const noexcept {
         if (this->Size() == 0) return 0;
-
         const char* d = this->Data();
-        for (size_t i = 0; i < char_capacity(); ++i) {
+        for (size_t i = 0; i < char_capacity(); i++) {
             if (d[i] == '\0') return i;
         }
-
         return char_capacity();
     }
 
@@ -281,12 +271,10 @@ public:
         size_t l2 = other.length();
         size_t out_len = l1 + l2;
         String result(out_len + 1, '\0');
-
-        for (size_t i = 0; i < l1 && i < result.char_capacity(); ++i)
+        for (size_t i = 0; i < l1 && i < result.char_capacity(); i++)
             result.Data()[i] = this->Data()[i];
-
         size_t pos = l1;
-        for (size_t j = 0; j < l2 && pos < result.char_capacity(); ++j, ++pos)
+        for (size_t j = 0; j < l2 && pos < result.char_capacity(); j++, pos++)
             result.Data()[pos] = other.Data()[j];
         result.ensure_null_terminated();
         return result;
@@ -302,7 +290,7 @@ public:
         size_t l2 = other.length();
         size_t cap = char_capacity();
         size_t copy_len = (l1 + l2 <= cap) ? l2 : (cap > l1 ? cap - l1 : 0);
-        for (size_t i = 0; i < copy_len; ++i) this->Data()[l1 + i] = other.Data()[i];
+        for (size_t i = 0; i < copy_len; i++) this->Data()[l1 + i] = other.Data()[i];
         ensure_null_terminated();
         return *this;
     }
@@ -317,7 +305,7 @@ public:
         size_t l1 = length();
         size_t l2 = other.length();
         if (l1 != l2) return false;
-        for (size_t i = 0; i < l1; ++i) if (this->Data()[i] != other.Data()[i]) return false;
+        for (size_t i = 0; i < l1; i++) if (this->Data()[i] != other.Data()[i]) return false;
         return true;
     }
 
@@ -325,15 +313,15 @@ public:
         size_t other_len = c_strlen(other);
         size_t l = length();
         if (l != other_len) return false;
-        for (size_t i = 0; i < l; ++i) if (this->Data()[i] != other[i]) return false;
+        for (size_t i = 0; i < l; i++) if (this->Data()[i] != other[i]) return false;
         return true;
     }
 
-    bool operator!=(const String& other) const noexcept {
+    inline bool operator!=(const String& other) const noexcept {
         return !(*this == other);
     }
     
-    bool operator!=(const char* other) const noexcept {
+    inline bool operator!=(const char* other) const noexcept {
         return !(*this == other);
     }
 };
@@ -346,6 +334,7 @@ inline String operator+(const char* str1, const String& str2) noexcept {
 inline bool operator==(const char* lhs, const String& rhs) noexcept {
     return rhs == lhs;
 }
+
 inline bool operator!=(const char* lhs, const String& rhs) noexcept {
     return !(rhs == lhs);
 }
@@ -359,7 +348,6 @@ inline String to_string(size_t value) noexcept {
         buf[idx++] = char('0' + (v % 10));
         v /= 10;
     }
-
     String s(idx + 1, '\0');
     for (size_t i = 0; i < idx; i++) s[i] = buf[idx - 1 - i];
     s[idx] = '\0';

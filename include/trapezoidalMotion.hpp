@@ -2,6 +2,7 @@
 
 #include "util/errordef.hpp"
 #include "util/math.hpp"
+#include "util/exception.hpp"
 
 namespace vislib {
 
@@ -37,18 +38,18 @@ public:
     
     TrapezoidalMotionProfile() = default;
     
-    TrapezoidalMotionProfile(const T& acceleration, const T& speedLimit) noexcept
+    TrapezoidalMotionProfile(const T& acceleration, const T& speedLimit) noexcept(util::arithmeticNoexcept<T>())
     : acceleration(acceleration), speedLimit(speedLimit) { }
     
-    T getAcceleration() const noexcept {
+    inline constexpr T getAcceleration() const noexcept(util::arithmeticNoexcept<T>()) {
         return acceleration;
     }
     
-    T getSpeedLimit() const noexcept {
+    inline constexpr T getSpeedLimit() const noexcept(util::arithmeticNoexcept<T>()) {
         return speedLimit;
     }
     
-    util::Error validCheck() noexcept {
+    [[nodiscard]] util::Error validCheck() noexcept(util::arithmeticNoexcept<T>()) {
         if(x0 == xt) {
             endMotion();
             return {util::ErrorCode::reachedTheTarget, "The motion starting position is the same as final destination"};
@@ -67,7 +68,7 @@ public:
         return util::ErrorCode::success;
     }
     
-    util::Error isConfiguredAsErr() const noexcept {
+    [[nodiscard]] util::Error isConfiguredAsErr() const noexcept(util::arithmeticNoexcept<T>()) {
         if(isConfiguredFlag) return util::ErrorCode::success;
         
         util::Error err = validCheck();
@@ -76,15 +77,15 @@ public:
         return err;
     }
     
-    bool isConfigured() const noexcept {
+    inline constexpr bool isConfigured() const noexcept {
         return isConfiguredFlag;
     }
     
-    void endMotion() noexcept {
+    inline void endMotion() noexcept(util::arithmeticNoexcept<T, TimeType>()) {
         *this = TrapezoidalMotionProfile();
     }
     
-    util::Error startMotion(const T& startPosition, const T& targetPosition, const TimeType& startTime = TimeType{}) noexcept {
+    [[nodiscard]] util::Error startMotion(const T& startPosition, const T& targetPosition, const TimeType& startTime = TimeType{}) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
         
         isConfiguredFlag = false;
         
@@ -94,9 +95,6 @@ public:
         util::Error err = isConfiguredAsErr();
         
         if (err) return err;
-        
-        x0 = startPosition;
-        xt = targetPosition;
         
         s = util::signF(xt - x0);
         
@@ -119,7 +117,7 @@ public:
     
     
     
-    util::Result<TMPResult<T>> calculateMotion(const TimeType& timePoint) const noexcept {
+    [[nodiscard]] util::Result<TMPResult<T>> calculateMotion(const TimeType& timePoint) const noexcept(util::arithmeticNoexcept<T, TimeType>()) {
         
         util::Error err = validCheck();
         
@@ -135,18 +133,19 @@ public:
         if(0 <= t && t <= t1) {
             result.position = x0 + s * acceleration * t * t / 2.0;
             result.speed = acceleration * t;
+            result.acceleration = acceleration;
             
         } else if(t1 < t && t < t2) {
             result.position = x1 + speedLimit * (t - t1);
             result.speed = speedLimit;
+            result.acceleration = 0;
             
         } else if(t2 <= t && t <= t3) {
             result.position = x2 + speedLimit * (t - t2) - s * acceleration * (t - t2) * (t - t2) / 2.0;
             result.speed = speedLimit - acceleration * (t - t2);
+            result.acceleration = -acceleration;
             
         }
-        
-        result.acceleration = acceleration;
         
         return result;
         
@@ -156,5 +155,5 @@ public:
 
 template <typename T, typename TimeType = T> using TMP = TrapezoidalMotionProfile<T, TimeType>;
 
-}
+} // namespace vislib
 
