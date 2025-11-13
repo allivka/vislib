@@ -7,21 +7,21 @@
 
 namespace vislib::util {
 
-template <typename T> inline constexpr T absF(const T& x) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T absF(const T& x) noexcept(numberNoexcept<T>()) {
     return (x < static_cast<T>(0)) ? (x * static_cast<T>(-1)) : x;
 }
 
-template <typename T> inline constexpr T square(const T& x) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T square(const T& x) noexcept(numberNoexcept<T>()) {
     return x * x;
 }
 
-template <typename T> inline constexpr char signF(const T& x) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr char signF(const T& x) noexcept(numberNoexcept<T>()) {
     if (x < static_cast<T>(0)) return -1;
     if (x > static_cast<T>(0)) return 1;
     return 0;
 }
 
-template <typename T> inline constexpr T simpleMul(const T& value, size_t count) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T simpleMul(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
     T buffer = value;
     
     for(size_t i = 1; i < count; i++) {
@@ -31,7 +31,7 @@ template <typename T> inline constexpr T simpleMul(const T& value, size_t count)
     return buffer;
 }
 
-template <typename T> inline constexpr T simplePow(const T& value, size_t count) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T simplePow(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
     T buffer = value;
     
     for(size_t i = 1; i < count; i++) {
@@ -41,22 +41,22 @@ template <typename T> inline constexpr T simplePow(const T& value, size_t count)
     return buffer;
 }
 
-template <typename T> inline constexpr T minF(const T& x, const T& y) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T minF(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
     if(x < y) return x;
     return y;
 }
 
-template <typename T> inline constexpr T maxF(const T& x, const T& y) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T maxF(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
     if(x > y) return x;
     return y;
 }
 
-template <typename T> inline constexpr T minEq(const T& x, const T& y) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T minEq(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
     if(x <= y) return x;
     return y;
 }
 
-template <typename T> inline constexpr T maxEq(const T& x, const T& y) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T maxEq(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
     if(x >= y) return x;
     return y;
 }
@@ -69,11 +69,11 @@ inline double sinDegrees(double angle) noexcept {
     return sin(angle * M_PI / 180.0);
 }
 
-template <typename T> inline constexpr T deg2Rad(T angle) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T deg2Rad(T angle) noexcept(numberNoexcept<T>()) {
     return angle * M_PI / 180.0;
 }
 
-template <typename T> inline constexpr T rad2Deg(T angle) noexcept(arithmeticNoexcept<T>()) {
+template <typename T> inline constexpr T rad2Deg(T angle) noexcept(numberNoexcept<T>()) {
     return angle * 180.0 / M_PI;
 }
 
@@ -82,34 +82,34 @@ public:
     T lowest = 0;
     T highest = 0;
 
-    template<typename D> static D map(const D& x, const D& in_min, const D& in_max, const D& out_min, const D& out_max) noexcept(arithmeticNoexcept<D>()) {
+    template<typename D> static D map(const D& x, const D& in_min, const D& in_max, const D& out_min, const D& out_max) noexcept(numberNoexcept<D>()) {
         if (in_max == in_min) {
             return out_min;
         }
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 
-    template<typename D> static D map(D x, const Range<D>& in, const Range<D>& out) noexcept(arithmeticNoexcept<D>()) {
+    template<typename D> static D map(D x, const Range<D>& in, const Range<D>& out) noexcept(numberNoexcept<D>()) {
         return map(x, in.lowest, in.highest, out.lowest, out.highest);
     }
 
     Range() = default;
     Range(const Range&) = default;
-    Range(const T& p_lowest, const T& p_highest) noexcept(noexcept(T(p_lowest)) && noexcept(T(p_highest)) && arithmeticNoexcept<T>()) : lowest(p_lowest), highest(p_highest) {}
+    Range(const T& p_lowest, const T& p_highest) noexcept(noexcept(T(p_lowest)) && noexcept(T(p_highest)) && numberNoexcept<T>()) : lowest(p_lowest), highest(p_highest) {}
 
-    inline constexpr bool contains(const T& v) const noexcept(arithmeticNoexcept<T>()) {
+    inline constexpr bool contains(const T& v) const noexcept(numberNoexcept<T>()) {
         return v >= lowest && v <= highest;
     }
 
-    inline constexpr T restrict(const T& v) const noexcept(arithmeticNoexcept<T>()) {
+    inline constexpr T restrict(const T& v) const noexcept(numberNoexcept<T>()) {
         return (v < lowest) ? lowest : ((v > highest) ? highest : v);
     }
 
-    inline constexpr T mapValueFromRange(const T& v, Range<T> r) const noexcept(arithmeticNoexcept<T>()) {
+    inline constexpr T mapValueFromRange(const T& v, Range<T> r) const noexcept(numberNoexcept<T>()) {
         return map(v, r, *this);
     }
 
-    inline constexpr T mapValueToRange(const T& v, Range<T> r) const noexcept(arithmeticNoexcept<T>()) {
+    inline constexpr T mapValueToRange(const T& v, Range<T> r) const noexcept(numberNoexcept<T>()) {
         return map(v, *this, r);
     }
 
@@ -158,7 +158,7 @@ public:
         return data[i];
     }
 
-    Vector operator+(const Vector& other) const noexcept(arithmeticNoexcept<T>()) {
+    Vector operator+(const Vector& other) const noexcept(numberNoexcept<T>()) {
         Vector temp = *this;
         for (size_t i = 0; i < minF(temp.Size(), other.Size()); i++) {
             temp.at(i) += other.at(i);
@@ -166,14 +166,14 @@ public:
         return temp;
     }
 
-    Vector& operator+=(const Vector& other) noexcept(arithmeticNoexcept<T>()) {
+    Vector& operator+=(const Vector& other) noexcept(numberNoexcept<T>()) {
         for (size_t i = 0; i < minF(Size(), other.Size()); i++) {
             at(i) += other.at(i);
         }
         return *this;
     }
 
-    Vector operator-(const Vector& other) const noexcept(arithmeticNoexcept<T>()) {
+    Vector operator-(const Vector& other) const noexcept(numberNoexcept<T>()) {
         Vector temp = *this;
         for (size_t i = 0; i < minF(temp.Size(), other.Size()); i++) {
             temp.at(i) -= other.at(i);
@@ -181,14 +181,14 @@ public:
         return temp;
     }
 
-    Vector& operator-=(const Vector& other) noexcept(arithmeticNoexcept<T>()) {
+    Vector& operator-=(const Vector& other) noexcept(numberNoexcept<T>()) {
         for (size_t i = 0; i < minF(Size(), other.Size()); i++) {
             at(i) -= other.at(i);
         }
         return *this;
     }
 
-    Vector operator*(const T& value) const noexcept(arithmeticNoexcept<T>()) {
+    Vector operator*(const T& value) const noexcept(numberNoexcept<T>()) {
         Vector temp = *this;
         for (size_t i = 0; i < temp.Size(); i++) {
             temp.at(i) *= value;
@@ -196,14 +196,14 @@ public:
         return temp;
     }
 
-    Vector& operator*=(const T& value) noexcept(arithmeticNoexcept<T>()) {
+    Vector& operator*=(const T& value) noexcept(numberNoexcept<T>()) {
         for (size_t i = 0; i < Size(); i++) {
             at(i) *= value;
         }
         return *this;
     }
 
-    Vector operator/(const T& value) const noexcept(arithmeticNoexcept<T>()) {
+    Vector operator/(const T& value) const noexcept(numberNoexcept<T>()) {
         if (value == T(0)) return *this;
         Vector temp = *this;
         for (size_t i = 0; i < temp.Size(); i++) {
@@ -212,7 +212,7 @@ public:
         return temp;
     }
 
-    Vector& operator/=(const T& value) noexcept(arithmeticNoexcept<T>()) {
+    Vector& operator/=(const T& value) noexcept(numberNoexcept<T>()) {
         if (value == T(0)) return *this;
         for (size_t i = 0; i < Size(); i++) {
             at(i) /= value;
@@ -220,7 +220,7 @@ public:
         return *this;
     }
 
-    Vector operator-() const noexcept(arithmeticNoexcept<T>()) {
+    Vector operator-() const noexcept(numberNoexcept<T>()) {
         Vector temp = *this;
         for (size_t i = 0; i < temp.Size(); i++) {
             temp.at(i) = -temp.at(i);
@@ -228,7 +228,7 @@ public:
         return temp;
     }
 
-    double module() const noexcept(arithmeticNoexcept<T>()) {
+    double module() const noexcept(numberNoexcept<T>()) {
         double buffer = 0;
         for (size_t i = 0; i < Size(); i++) {
             buffer += static_cast<double>(at(i)) * static_cast<double>(at(i));
@@ -236,7 +236,7 @@ public:
         return sqrt(buffer);
     }
 
-    double dot(const Vector& other) const noexcept(arithmeticNoexcept<T>()) {
+    double dot(const Vector& other) const noexcept(numberNoexcept<T>()) {
         double buffer = 0;
         for (size_t i = 0; i < minF(Size(), other.Size()); i++) {
             buffer += static_cast<double>(at(i)) * static_cast<double>(other.at(i));
@@ -244,19 +244,19 @@ public:
         return buffer;
     }
 
-    Vector normal() const noexcept(arithmeticNoexcept<T>()) {
+    Vector normal() const noexcept(numberNoexcept<T>()) {
         auto m = module();
         return (m != 0) ? (*this / static_cast<T>(m)) : *this;
     }
 
-    void normalize() noexcept(arithmeticNoexcept<T>()) {
+    void normalize() noexcept(numberNoexcept<T>()) {
         auto m = module();
         if (m != 0) *this /= static_cast<T>(m);
     }
 };
 
 template <typename T>
-Vector<T> operator*(const T& val, const Vector<T>& vec) noexcept(arithmeticNoexcept<T>()) {
+Vector<T> operator*(const T& val, const Vector<T>& vec) noexcept(numberNoexcept<T>()) {
     return vec * val;
 }
 

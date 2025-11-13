@@ -17,10 +17,10 @@ protected:
     TimeType prevTime{};
     
 public:
-    PIDRegulator(const T& Kp, const T& Ki, const T& Kd, const T& Target = T{}) noexcept(util::arithmeticNoexcept<T>()) : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
+    PIDRegulator(const T& Kp, const T& Ki, const T& Kd, const T& Target = T{}) noexcept(util::numberNoexcept<T>()) : Kp(Kp), Ki(Ki), Kd(Kd), target(target) {}
 
     
-    [[nodiscard]] T compute(const T& measured, const T& target, const TimeType& time) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
+    [[nodiscard]] T compute(const T& measured, const T& target, const TimeType& time) noexcept(util::numberNoexcept<T, TimeType>()) {
         T error = target - measured;
         
         if (prevTime == 0) {
@@ -45,11 +45,11 @@ public:
         
     }
     
-    inline T compute(const T& measured, const TimeType& time) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
+    inline T compute(const T& measured, const TimeType& time) noexcept(util::numberNoexcept<T, TimeType>()) {
         return compute(measured, this->target, time);
     }
     
-    inline void setTarget(const T& target) noexcept(util::arithmeticNoexcept<T>()) {
+    inline void setTarget(const T& target) noexcept(util::numberNoexcept<T>()) {
         this->target = target;
     }
     

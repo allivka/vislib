@@ -38,18 +38,18 @@ public:
     
     TrapezoidalMotionProfile() = default;
     
-    TrapezoidalMotionProfile(const T& acceleration, const T& speedLimit) noexcept(util::arithmeticNoexcept<T>())
+    TrapezoidalMotionProfile(const T& acceleration, const T& speedLimit) noexcept(util::numberNoexcept<T>())
     : acceleration(acceleration), speedLimit(speedLimit) { }
     
-    inline constexpr T getAcceleration() const noexcept(util::arithmeticNoexcept<T>()) {
+    inline constexpr T getAcceleration() const noexcept(util::numberNoexcept<T>()) {
         return acceleration;
     }
     
-    inline constexpr T getSpeedLimit() const noexcept(util::arithmeticNoexcept<T>()) {
+    inline constexpr T getSpeedLimit() const noexcept(util::numberNoexcept<T>()) {
         return speedLimit;
     }
     
-    [[nodiscard]] util::Error validCheck() noexcept(util::arithmeticNoexcept<T>()) {
+    [[nodiscard]] util::Error validCheck() noexcept(util::numberNoexcept<T>()) {
         if(x0 == xt) {
             endMotion();
             return {util::ErrorCode::reachedTheTarget, "The motion starting position is the same as final destination"};
@@ -68,7 +68,7 @@ public:
         return util::ErrorCode::success;
     }
     
-    [[nodiscard]] util::Error isConfiguredAsErr() const noexcept(util::arithmeticNoexcept<T>()) {
+    [[nodiscard]] util::Error isConfiguredAsErr() const noexcept(util::numberNoexcept<T>()) {
         if(isConfiguredFlag) return util::ErrorCode::success;
         
         util::Error err = validCheck();
@@ -81,11 +81,11 @@ public:
         return isConfiguredFlag;
     }
     
-    inline void endMotion() noexcept(util::arithmeticNoexcept<T, TimeType>()) {
+    inline void endMotion() noexcept(util::numberNoexcept<T, TimeType>()) {
         *this = TrapezoidalMotionProfile();
     }
     
-    [[nodiscard]] util::Error startMotion(const T& startPosition, const T& targetPosition, const TimeType& startTime = TimeType{}) noexcept(util::arithmeticNoexcept<T, TimeType>()) {
+    [[nodiscard]] util::Error startMotion(const T& startPosition, const T& targetPosition, const TimeType& startTime = TimeType{}) noexcept(util::numberNoexcept<T, TimeType>()) {
         
         isConfiguredFlag = false;
         
@@ -117,7 +117,7 @@ public:
     
     
     
-    [[nodiscard]] util::Result<TMPResult<T>> calculateMotion(const TimeType& timePoint) const noexcept(util::arithmeticNoexcept<T, TimeType>()) {
+    [[nodiscard]] util::Result<TMPResult<T>> calculateMotion(const TimeType& timePoint) const noexcept(util::numberNoexcept<T, TimeType>()) {
         
         util::Error err = validCheck();
         
