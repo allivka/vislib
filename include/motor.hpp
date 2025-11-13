@@ -37,7 +37,7 @@ public:
     
     MotorInfoIncluded(const MotorInfo& p_info) noexcept : info(p_info) {}
     
-    virtual MotorInfo Info() const {
+    virtual inline MotorInfo Info() const {
         return info;
     }
 };
@@ -61,7 +61,7 @@ protected:
 public:
     using MotorInfoIncluded::MotorInfoIncluded;
     
-    [[nodiscard]] virtual util::Error setSpeed(Speed speed) noexcept override {
+    [[nodiscard]] virtual inline util::Error setSpeed(Speed speed) noexcept override {
         return setSpeedRaw(info.interfaceSpeedRange.mapValueToRange(info.interfaceSpeedRange.restrict(info.isReversed ? -speed : speed), info.speedRange));
     }
     
@@ -74,11 +74,11 @@ public:
         return info.isReversed ? -mapped : mapped;
     }
 
-    virtual bool inSpeedRange(Speed speed) const noexcept {
+    virtual inline bool inSpeedRange(Speed speed) const noexcept {
         return info.interfaceSpeedRange.contains(speed);
     }
     
-    [[nodiscard]] virtual util::Error setSpeedInRange(Speed speed, SpeedRange range) noexcept {
+    [[nodiscard]] virtual inline util::Error setSpeedInRange(Speed speed, SpeedRange range) noexcept {
         return setSpeed(info.interfaceSpeedRange.mapValueFromRange(range.restrict(speed), range));
     }
 };
