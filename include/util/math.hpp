@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include "containers.hpp"
+#include "errordef.hpp"
 #include "memory.hpp"
 #include "exception.hpp"
 
@@ -77,6 +78,7 @@ template <typename T> inline constexpr T rad2Deg(T angle) noexcept(numberNoexcep
     return angle * 180.0 / M_PI;
 }
 
+
 template <typename T> class Range {
 public:
     T lowest = 0;
@@ -111,6 +113,62 @@ public:
 
     inline constexpr T mapValueToRange(const T& v, Range<T> r) const noexcept(numberNoexcept<T>()) {
         return map(v, *this, r);
+    }
+
+};
+
+template <typename T, typename TimeType = T> class Integrator {
+protected:
+    T integral{};
+    TimeType lastTime{};
+    
+    Range<T> limit{};
+    
+public:
+    
+    Integrator(const TimeType& startTime, const Range<T> limit) noexcept(numberNoexcept<T>() && numberNoexcept<TimeType>())
+        : lastTime(startTime), limit(limit) {}
+    
+    void start(const TimeType& startTime, const Range<T> limit) noexcept(numberNoexcept<T>() && numberNoexcept<TimeType>()) {
+        lastTime = startTime;
+        this->limit = limit;
+    }
+    
+    util::Result<T> update(const TimeType& currentTime, const T& value) noexcept(numberNoexcept<T>() && numberNoexcept<TimeType>()) {
+        if(currentTime < lastTime) return {ErrorCode::invalidArgument, "Current time is less than last operation time. Integrator state wasn't changed"};
+        
+        T result = integral + value * (currentTime - lastTime);
+        
+        if (result == integral) return integral;
+        
+        if(!limit.contains(result)) result = limit.restrict(result);
+        
+        integral = result;
+        lastTime = currentTime;
+        
+        return integral;
+        
+    }
+    
+    T getIntegral() const noexcept {
+        return integral;
+    }
+    
+    void setIntegral(const T& value) noexcept(numberNoexcept<T>()) {
+        integral = limit.restrict(value);
+    }
+    
+    void resetIntegral() {
+        integral = T();
+    }
+    
+    void resetIntegral(const TimeType& currentTime) {
+        integral = T();
+        lastTime = currentTime;
+    }
+    
+    Range<T> getLimit() const {
+        return limit;
     }
 
 };

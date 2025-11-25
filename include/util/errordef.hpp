@@ -11,6 +11,7 @@ enum class ErrorCode {
     invalidConfiguration,
     failedConnection,
     outOfRange,
+    surpassedLimit,
     indexOutOfRange,
     emptyArray,
     zeroDivision

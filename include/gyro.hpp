@@ -35,33 +35,45 @@ template <typename T> struct YPR {
 };
 
 template <typename T> using Acceleration = util::Vector<T>;
-template <typename T> using Speed = util::Vector<T>;
+template <typename T> using AngularSpeed = util::Vector<T>;
 
-template <typename YPRType, typename AccSpeedType> class GyroData {
+class BaseGyroController {
+public:
+    virtual util::Error update()  = 0;
+    virtual util::Error calibrate() = 0;
+};
+
+template <typename T, typename WT = T, typename TimeType = T> struct YPRElementCalculatorConfig {
+    WT integralWeight{};
+    T offset{};
+    util::Integrator<T, TimeType> integrator{};
+    
+};
+template <typename YPRType, typename AccAngularSpeedType> class GyroData {
 private:
-    using AccT = Acceleration<AccSpeedType>;
-    using SpeedT = Speed<AccSpeedType>;
+    using AccT = Acceleration<AccAngularSpeedType>;
+    using SpeedT = AngularSpeed<AccAngularSpeedType>;
 public:
     YPR<YPRType> ypr;
-    Acceleration<AccSpeedType> acceleration;
-    Speed<AccSpeedType> speed;
+    Acceleration<AccAngularSpeedType> acceleration;
+    AngularSpeed<AccAngularSpeedType> speed;
     
     
     GyroData() = default;
     
     GyroData(const YPR<YPRType>& ypr, const AccT& acceleration, const SpeedT& speed)
-        noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>()) : ypr(ypr), acceleration(acceleration), speed(speed) {}
+        noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) : ypr(ypr), acceleration(acceleration), speed(speed) {}
     
-    GyroData(const GyroData& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>())
+    GyroData(const GyroData& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>())
         : ypr(other.ypr), acceleration(other.acceleration), speed(other.speed) {}
     
-    GyroData(GyroData&& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>())
+    GyroData(GyroData&& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>())
         : ypr(util::move(other.ypr)), acceleration(util::move(other.acceleration)), speed(util::move(other.speed)) {}
     
-    GyroData(YPR<YPRType>&& ypr, AccT&& acceleration, SpeedT&& speed) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>())
+    GyroData(YPR<YPRType>&& ypr, AccT&& acceleration, SpeedT&& speed) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>())
         : ypr(util::move(ypr)), acceleration(util::move(acceleration)), speed(util::move(speed)) {}
     
-    GyroData<AccT, SpeedT>& operator=(const GyroData& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>()) {
+    GyroData<YPRType, AccAngularSpeedType>& operator=(const GyroData& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         ypr = other.ypr;
         acceleration = other.acceleration;
         speed = other.speed;
@@ -69,7 +81,7 @@ public:
         return *this;
     }
     
-    GyroData<AccT, SpeedT>& operator=(GyroData&& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>()) {
+    GyroData<AccT, SpeedT>& operator=(GyroData&& other) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         ypr = util::move(other.ypr);
         acceleration =  util::move(other.acceleration);
         speed = util::move(other.speed);
@@ -82,32 +94,32 @@ public:
 
 template <typename T> class AccelerationGetter {
 public:
-    virtual inline util::Result<Acceleration<T>> getAcceleration() const noexcept(util::numberNoexcept<T>()) = 0;
+    virtual util::Result<Acceleration<T>> getAcceleration() const noexcept(util::numberNoexcept<T>()) = 0;
 };
 
-template <typename T> class SpeedGetter {
+template <typename T> class AngularSpeedGetter {
 public:
-    virtual inline util::Result<Speed<T>> getSpeed() const noexcept(util::numberNoexcept<T>()) = 0;
+    virtual util::Result<AngularSpeed<T>> getSpeed() const noexcept(util::numberNoexcept<T>()) = 0;
 };
 
 template <typename T> class YawGetter {
 public:
-    virtual inline util::Result<T> getYaw() const noexcept(util::numberNoexcept<T>()) = 0;
+    virtual util::Result<T> getYaw() const noexcept(util::numberNoexcept<T>()) = 0;
 };
 
 template <typename T> class PitchGetter {
 public:
-    virtual inline util::Result<T> getPitch() const noexcept(util::numberNoexcept<T>()) = 0;
+    virtual util::Result<T> getPitch() const noexcept(util::numberNoexcept<T>()) = 0;
 };
 
 template <typename T> class RollGetter {
 public:
-    virtual inline util::Result<T> getRoll() const noexcept(util::numberNoexcept<T>()) = 0;
+    virtual util::Result<T> getRoll() const noexcept(util::numberNoexcept<T>()) = 0;
 };
 
 template <typename T> class YPRGetter : public YawGetter<T>, public PitchGetter<T>, public RollGetter<T> {
 public:
-    virtual inline util::Result<YPR<T>> getYPR() const noexcept(util::numberNoexcept<T>()) {
+    virtual util::Result<YPR<T>> getYPR() const noexcept(util::numberNoexcept<T>()) {
         
         util::Result<T> yaw = this->getYaw();
         if(yaw) return yaw.err();
@@ -122,35 +134,160 @@ public:
     }
 };
 
-
-
 // calculators
-template <typename T> class YawCalculator {
-public:
-    virtual util::Result<T> calculateYaw() const noexcept(util::numberNoexcept<T>()) = 0;
-};
 
-template <typename T> class PitchCalculator {
-public:
-    virtual util::Result<T> calculatePitch() const noexcept(util::numberNoexcept<T>()) = 0;
-};
-
-template <typename T> class RollCalculator {
-public:
-    virtual util::Result<T> calculateRoll() const noexcept(util::numberNoexcept<T>()) = 0;
-};
-
-template <typename T> class YPRCalculator : public YawCalculator<T>, public PitchCalculator<T>, public RollCalculator<T> {
-public:
-virtual util::Result<YPR<T>> calculateYPR() const noexcept(util::numberNoexcept<T>()) {
+template <typename T, typename TimeType = T> class YawCalculator : public YawGetter<T> {
+protected:
+    YPRElementCalculatorConfig<T, T, TimeType> yawConfig{};
+    
+    util::Error internalYawInit(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
         
-        util::Result<T> yaw = this->calculateYaw();
+        return util::ErrorCode::success;
+    };
+    
+    util::Result<T> internalNonIntegralPartYawCalculation() const {
+        return T();
+    }
+    
+public:
+    
+    util::Error initYawCalculator(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        yawConfig = config;
+        return internalYawInit(yawConfig);
+    }
+
+    virtual util::Result<T> calculateYaw(const TimeType& currentTime)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        util::Result<T> temp = yawConfig.integrator.update(currentTime, this->getYaw());
+        
+        if(temp) return temp.err();
+        
+        util::Result<T> nonIntegral = internalNonIntegralPartYawCalculation();
+        
+        if(nonIntegral) return nonIntegral.err();
+        
+        yawConfig.integrator.setIntegral(temp * yawConfig.integralWeight + nonIntegral * (T(1) - yawConfig.integralWeight));
+        
+        return yawConfig.integrator.getIntegral() + yawConfig.offset;
+        
+    }
+};
+
+template <typename T, typename TimeType = T> class PitchCalculator : public PitchGetter<T> {
+protected:
+    YPRElementCalculatorConfig<T, T, TimeType> pitchConfig{};
+    
+    util::Error internalPitchInit(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        return util::ErrorCode::success;
+    };
+    
+    util::Result<T> internalNonIntegralPartPitchCalculation() const {
+        return T();
+    }
+    
+public:
+    
+    util::Error initPitchCalculator(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        pitchConfig = config;
+        return internalPitchInit(pitchConfig);
+    }
+
+    virtual util::Result<T> calculatePitch(const TimeType& currentTime)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        util::Result<T> temp = pitchConfig.integrator.update(currentTime, this->getPitch());
+        
+        if(temp) return temp.err();
+        
+        util::Result<T> nonIntegral = internalNonIntegralPartPitchCalculation();
+        
+        if(nonIntegral) return nonIntegral.err();
+        
+        pitchConfig.integrator.setIntegral(temp * pitchConfig.integralWeight + nonIntegral * (T(1) - pitchConfig.integralWeight));
+        
+        return pitchConfig.integrator.getIntegral() + pitchConfig.offset;
+        
+    }
+};
+
+template <typename T, typename TimeType = T> class RollCalculator : public RollGetter<T> {
+protected:
+    YPRElementCalculatorConfig<T, T, TimeType> rollConfig{};
+    
+    util::Error internalRollInit(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        return util::ErrorCode::success;
+    };
+    
+    util::Result<T> internalNonIntegralPartRollCalculation() const {
+        return T();
+    }
+    
+public:
+    
+    util::Error initRollCalculator(const YPRElementCalculatorConfig<T, T, TimeType>& config)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        rollConfig = config;
+        return internalRollInit(rollConfig);
+    }
+
+    virtual util::Result<T> calculateRoll(const TimeType& currentTime)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        util::Result<T> temp = rollConfig.integrator.update(currentTime, this->getRoll());
+        
+        if(temp) return temp.err();
+        
+        util::Result<T> nonIntegral = internalNonIntegralPartRollCalculation();
+        
+        if(nonIntegral) return nonIntegral.err();
+        
+        rollConfig.integrator.setIntegral(temp * rollConfig.integralWeight + nonIntegral * (T(1) - rollConfig.integralWeight));
+        
+        return rollConfig.integrator.getIntegral() + rollConfig.offset;
+        
+    }
+};
+
+template <typename T, typename TimeType = T> class YPRCalculator : public YawCalculator<T>, public PitchCalculator<T>, public RollCalculator<T> {
+public:
+
+virtual util::Error initCalculator(const YPRElementCalculatorConfig<T, T, TimeType>& yawConfig,
+                                   const YPRElementCalculatorConfig<T, T, TimeType>& pitchConfig,
+                                   const YPRElementCalculatorConfig<T, T, TimeType>& rollConfig)
+    noexcept(util::numberNoexcept<T>() && util::numberNoexcept<TimeType>()) {
+        
+        util::Error err = this->initYawCalculator(yawConfig);
+        if(err) return err;
+        
+        err = this->initPitchCalculator(pitchConfig);
+        if(err) return err;
+        
+        err = this->initRollCalculator(rollConfig);
+        if(err) return err;
+        
+        return util::ErrorCode::success;
+    }
+
+virtual util::Result<YPR<T>> calculateYPR(const TimeType& currentTime) const noexcept(util::numberNoexcept<T>()) {
+        
+        util::Result<T> yaw = this->calculateYaw(currentTime);
         if(yaw) return yaw.err();
         
-        util::Result<T> pitch = this->calculatePitch();
+        util::Result<T> pitch = this->calculatePitch(currentTime);
         if(pitch) return pitch.err();
         
-        util::Result<T> roll = this->calculateRoll();
+        util::Result<T> roll = this->calculateRoll(currentTime);
         if(roll) return roll.err();
         
         return {yaw(), pitch(), roll()};
@@ -158,44 +295,50 @@ virtual util::Result<YPR<T>> calculateYPR() const noexcept(util::numberNoexcept<
 };
 
 
-// ultimate
+// controllers
 
-template <typename YPRType, typename AccSpeedType> class GyroDataGetter :
-    public YPRGetter<YPRType>, public AccelerationGetter<AccSpeedType>, public SpeedGetter<AccSpeedType> {
+template <typename YPRType, typename AccAngularSpeedType> class GyroDataGetter :
+    public YPRGetter<YPRType>, public AccelerationGetter<AccAngularSpeedType>, public AngularSpeedGetter<AccAngularSpeedType> {
 
 public:
-    virtual inline util::Result<GyroData<YPRType, AccSpeedType>> getGyroData() const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>()) {
+    virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> getGyroData() const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         
         util::Result<YPR<YPRType>> ypr = this->getYPR();
         if(ypr) return ypr.err();
         
-        util::Result<util::Vector<AccSpeedType>> acceleration = this->getAcceleration();
+        util::Result<util::Vector<AccAngularSpeedType>> acceleration = this->getAcceleration();
         if(acceleration) return acceleration.err();
         
-        util::Result<util::Vector<AccSpeedType>> speed = this->getSpeed();
+        util::Result<util::Vector<AccAngularSpeedType>> speed = this->getSpeed();
         if(speed) return speed.err();
         
         return {util::move(ypr()), util::move(acceleration()), util::move(speed())};
     }
 };
 
-template <typename YPRType, typename AccSpeedType> class GyroDataCalculator :
-    public YPRCalculator<YPRType>, public AccelerationGetter<AccSpeedType>, public SpeedGetter<AccSpeedType> {
+template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YPRType> class GyroDataCalculator :
+    public YPRCalculator<YPRType, TimeType>, public AccelerationGetter<AccAngularSpeedType>, public AngularSpeedGetter<AccAngularSpeedType> {
 
 public:
-    virtual inline util::Result<GyroData<YPRType, AccSpeedType>> getGyroData() const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccSpeedType>()) {
+    virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> calculateGyroData() const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         
         util::Result<YPR<YPRType>> ypr = this->calculateYPR();
         if(ypr) return ypr.err();
         
-        util::Result<util::Vector<AccSpeedType>> acceleration = this->getAcceleration();
+        util::Result<Acceleration<AccAngularSpeedType>> acceleration = this->getAcceleration();
         if(acceleration) return acceleration.err();
         
-        util::Result<util::Vector<AccSpeedType>> speed = this->getSpeed();
+        util::Result<AngularSpeed<AccAngularSpeedType>> speed = this->getSpeed();
         if(speed) return speed.err();
         
         return {util::move(ypr()), util::move(acceleration()), util::move(speed())};
     }
+};
+
+template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YPRType> class UltimateGyroController :
+    public BaseGyroController,
+    public GyroDataGetter<YPRType, AccAngularSpeedType>,
+    public GyroDataCalculator<YPRType, AccAngularSpeedType, TimeType> {
 };
 
 } // namespace vislib::gyro
