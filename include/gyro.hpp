@@ -377,7 +377,7 @@ public:
     virtual ~GyroDataGetter() = default;
 };
 
-template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YPRType> class GyroDataCalculator
+template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculator
     : public YPRCalculator<YPRType, TimeType>, virtual public AccelerationGetter<AccAngularSpeedType>, virtual public AngularSpeedGetter<AccAngularSpeedType> {
 
 public:
@@ -398,13 +398,13 @@ public:
     virtual ~GyroDataCalculator() = default;
 };
 
-template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YPRType> class GyroDataCalculatorWithAcceleration
+template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculatorWithAcceleration
     : public YPRCalculatorWithAcceleration<YPRType, TimeType>, public GyroDataCalculator<YPRType, AccAngularSpeedType, TimeType> {
 public:
     virtual ~GyroDataCalculatorWithAcceleration() = default;
 };
 
-template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YPRType> class UltimateGyroController :
+template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpeedType = YPRType> class UltimateGyroController :
     public BaseGyroController,
     public GyroDataGetter<YPRType, AccAngularSpeedType>,
     public GyroDataCalculatorWithAcceleration<YPRType, AccAngularSpeedType, TimeType> {
@@ -412,58 +412,5 @@ template <typename YPRType, typename AccAngularSpeedType, typename TimeType = YP
 public:
     virtual ~UltimateGyroController() = default;
 };
-
-// Definitions for pure-virtual destructors
-
-// template <typename T>
-// AccelerationGetter<T>::~AccelerationGetter() = default;
-//
-// template <typename T>
-// AngularSpeedGetter<T>::~AngularSpeedGetter() = default;
-//
-// template <typename T>
-// YawGetter<T>::~YawGetter() = default;
-//
-// template <typename T>
-// PitchGetter<T>::~PitchGetter() = default;
-//
-// template <typename T>
-// RollGetter<T>::~RollGetter() = default;
-//
-// template <typename T>
-// YPRGetter<T>::~YPRGetter() = default;
-//
-// template <typename T, typename TimeType>
-// YawCalculator<T, TimeType>::~YawCalculator() = default;
-//
-// template <typename T, typename TimeType>
-// PitchCalculator<T, TimeType>::~PitchCalculator() = default;
-//
-// template <typename T, typename TimeType>
-// RollCalculator<T, TimeType>::~RollCalculator() = default;
-//
-// template <typename T, typename TimeType>
-// YPRCalculator<T, TimeType>::~YPRCalculator() = default;
-//
-// template <typename T, typename TimeType>
-// PitchCalculatorWithAcceleration<T, TimeType>::~PitchCalculatorWithAcceleration() = default;
-//
-// template <typename T, typename TimeType>
-// RollCalculatorWithAcceleration<T, TimeType>::~RollCalculatorWithAcceleration() = default;
-//
-// template <typename T, typename TimeType>
-// YPRCalculatorWithAcceleration<T, TimeType>::~YPRCalculatorWithAcceleration() = default;
-//
-// template <typename YPRType, typename AccAngularSpeedType>
-// GyroDataGetter<YPRType, AccAngularSpeedType>::~GyroDataGetter() = default;
-//
-// template <typename YPRType, typename AccAngularSpeedType, typename TimeType>
-// GyroDataCalculator<YPRType, AccAngularSpeedType, TimeType>::~GyroDataCalculator() = default;
-//
-// template <typename YPRType, typename AccAngularSpeedType, typename TimeType>
-// GyroDataCalculatorWithAcceleration<YPRType, AccAngularSpeedType, TimeType>::~GyroDataCalculatorWithAcceleration() = default;
-//
-// template <typename YPRType, typename AccAngularSpeedType, typename TimeType>
-// UltimateGyroController<YPRType, AccAngularSpeedType, TimeType>::~UltimateGyroController() = default;
 
 } // namespace vislib::gyro
