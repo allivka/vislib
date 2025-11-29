@@ -6,13 +6,13 @@ template <typename T> constexpr T&& move(T& t) noexcept {
     return static_cast<T&&>(t);
 }
 
-template <typename T> constexpr void swap(T& x, T& y) noexcept(noexcept(T(move(x))) && noexcept(x = move(y)) && noexcept(y = move(x))) {
+template <typename T> inline void swap(T& x, T& y) noexcept(noexcept(T(move(x))) && noexcept(x = move(y)) && noexcept(y = move(x))) {
     T temp = move(x);
     x = move(y);
     y = move(temp);
 }
 
-template <typename T> void deleter(T *ptr) noexcept {
+template <typename T> inline void deleter(T *ptr) noexcept {
     delete ptr;
 }
 
@@ -23,11 +23,11 @@ protected:
 public:
     UniquePtr() = default;
 
-    UniquePtr(const T& v) {
+    explicit UniquePtr(const T& v) {
         ptr = new T(v);
     }
 
-    UniquePtr(T *p_ptr) : ptr(p_ptr) {}
+    explicit UniquePtr(T *p_ptr) : ptr(p_ptr) {}
 
     UniquePtr(const UniquePtr&) = delete;
 

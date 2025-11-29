@@ -17,12 +17,10 @@ template <typename T> inline constexpr T square(const T& x) noexcept(numberNoexc
 }
 
 template <typename T> inline constexpr char signF(const T& x) noexcept(numberNoexcept<T>()) {
-    if (x < static_cast<T>(0)) return -1;
-    if (x > static_cast<T>(0)) return 1;
-    return 0;
+    return (x > static_cast<T>(0)) ? 1 : ((x < static_cast<T>(0)) ? -1 : 0);
 }
 
-template <typename T> inline constexpr T simpleMul(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
+template <typename T> inline T simpleMul(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
     T buffer = value;
     
     for(size_t i = 1; i < count; i++) {
@@ -32,7 +30,7 @@ template <typename T> inline constexpr T simpleMul(const T& value, size_t count)
     return buffer;
 }
 
-template <typename T> inline constexpr T simplePow(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
+template <typename T> inline T simplePow(const T& value, size_t count) noexcept(numberNoexcept<T>()) {
     T buffer = value;
     
     for(size_t i = 1; i < count; i++) {
@@ -43,23 +41,19 @@ template <typename T> inline constexpr T simplePow(const T& value, size_t count)
 }
 
 template <typename T> inline constexpr T minF(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
-    if(x < y) return x;
-    return y;
+    return (x < y) ? x : y;
 }
 
 template <typename T> inline constexpr T maxF(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
-    if(x > y) return x;
-    return y;
+    return (x > y) ? x : y;
 }
 
 template <typename T> inline constexpr T minEq(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
-    if(x <= y) return x;
-    return y;
+    return (x <= y) ? x : y;
 }
 
 template <typename T> inline constexpr T maxEq(const T& x, const T& y) noexcept(numberNoexcept<T>()) {
-    if(x >= y) return x;
-    return y;
+    return (x >= y) ? x : y;
 }
 
 inline double cosDegrees(double angle) noexcept {

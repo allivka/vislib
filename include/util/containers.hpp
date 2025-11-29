@@ -1,6 +1,5 @@
 #pragma once
 
-#include "types.hpp"
 #include "errordef.hpp"
 
 namespace vislib::util {
@@ -59,11 +58,11 @@ public:
         return data[index];
     }
 
-    inline constexpr size_t size() const noexcept {
+    static constexpr size_t size() noexcept {
         return SIZE;
     }
     
-    inline constexpr bool empty() const noexcept {
+    static inline constexpr bool empty() noexcept {
         return SIZE == 0;
     }
 };
@@ -76,7 +75,7 @@ protected:
 public:
     Array() = default;
 
-    Array(size_t p_size) noexcept : size(p_size), data(new T[size]) { }
+    Array(const size_t p_size) noexcept : size(p_size), data(new T[size]) { }
 
     template<size_t N> explicit Array(const T (&p_data)[N]) noexcept : size(N), data(new T[size]) {
         for(size_t i = 0; i < size; i++) data[i] = p_data[i];
@@ -209,11 +208,11 @@ private:
         if (!str) return 0;
         const char* ptr = str;
         while (*ptr) ptr++;
-        return (size_t)(ptr - str);
+        return static_cast<size_t>(ptr - str);
     }
 
     size_t char_capacity() const noexcept {
-        size_t s = this->Size();
+        const size_t s = this->Size();
         return s == 0 ? 0 : s - 1;
     }
 
@@ -336,16 +335,16 @@ inline bool operator==(const char* lhs, const String& rhs) noexcept {
 }
 
 inline bool operator!=(const char* lhs, const String& rhs) noexcept {
-    return !(rhs == lhs);
+    return rhs != lhs;
 }
 
-inline String to_string(size_t value) noexcept {
-    if (value == 0) return String("0");
+inline String to_string(const size_t value) noexcept {
+    if (value == 0) return {"0"};
     char buf[32];
     size_t idx = 0;
     unsigned long long v = value;
     while (v > 0 && idx < sizeof(buf)-1) {
-        buf[idx++] = char('0' + (v % 10));
+        buf[idx++] = static_cast<char>('0' + (v % 10));
         v /= 10;
     }
     String s(idx + 1, '\0');
@@ -354,9 +353,9 @@ inline String to_string(size_t value) noexcept {
     return s;
 }
 
-inline String to_string(long long value) noexcept {
+inline String to_string(const long long value) noexcept {
     if (value < 0) {
-        size_t uv = static_cast<size_t>(-value);
+        const auto uv = static_cast<size_t>(-value);
         String s = String("-") + to_string(uv);
         return s;
     }

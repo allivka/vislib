@@ -1,7 +1,6 @@
 #pragma once
 
 #include "util/errordef.hpp"
-#include "util/types.hpp"
 #include "util/exception.hpp"
 
 namespace vislib {

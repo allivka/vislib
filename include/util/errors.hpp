@@ -19,13 +19,13 @@ public:
 
     explicit operator bool() const noexcept { return errcode != ErrorCode::success; }
 
-    virtual bool operator==(const Error& err) const noexcept {
+    bool operator==(const Error& err) const noexcept {
         return errcode == err.errcode;
     }
 
     Error() noexcept : errcode(ErrorCode::success), msg("Successful operation") {}
 
-    Error(ErrorCode code, String p_msg = "Default error") noexcept : errcode(code), msg(p_msg) {
+    Error(ErrorCode code, const String& p_msg = "Default error") noexcept : errcode(code), msg(p_msg) {
         if (code == ErrorCode::success) msg = "Successful operation";
         else if(p_msg == "Default error") msg = "Undefined error occur";
     }

@@ -2,21 +2,20 @@
 
 #include "motor.hpp"
 #include <stdlib.h>
-#include <stdio.h>
 
 namespace vislib::platform {
 
 using PlatformMotorConfig = util::Array<motor::MotorInfo>;
 using PlatformMotorSpeeds = util::Array<motor::Speed>;
 
-PlatformMotorConfig updateParallelAxisesForMotors(PlatformMotorConfig config, size_t precision) noexcept {
+inline PlatformMotorConfig updateParallelAxisesForMotors(PlatformMotorConfig config, size_t precision) noexcept {
     for(size_t i = 0; i < config.Size(); i++) {
         config[i].parallelAxisesAmount = 1;
     }
     
     for(size_t i = 0; i < config.Size(); i++) {
         for(size_t j = i + 1; j < config.Size(); j++) {
-            double diff = round(util::absF(config[i].anglePos - config[j].anglePos) * pow(10, precision));
+            const double diff = static_cast<double>(lround(util::absF(config[i].anglePos - config[j].anglePos) * pow(10, precision)));
             if(diff == 0 || diff == 180) {
                 config[i].parallelAxisesAmount++;
                 config[j].parallelAxisesAmount++;
@@ -44,7 +43,7 @@ public:
     
     [[nodiscard]] util::Error setSpeeds(PlatformMotorSpeeds speeds) noexcept {
         if (speeds.Size() != controllers.Size()) {
-            return util::Error(util::ErrorCode::invalidArgument, "Cannot apply speeds set to controller set as there are different amount of them");
+            return {util::ErrorCode::invalidArgument, "Cannot apply speeds set to controller set as there are different amount of them"};
         }
         
         util::Error err;
@@ -62,8 +61,8 @@ public:
     
     [[nodiscard]] util::Error setSpeedsInRanges(PlatformMotorSpeeds speeds, util::Array<motor::SpeedRange> ranges) noexcept {
         if (speeds.Size() != controllers.Size() || speeds.Size() != ranges.Size()) {
-            return util::Error(util::ErrorCode::invalidArgument, 
-                "Cannot apply speeds from different ranges set to controller set as there are different amounts of them");
+            return {util::ErrorCode::invalidArgument,
+                "Cannot apply speeds from different ranges set to controller set as there are different amounts of them"};
         }
         
         util::Error err;
@@ -87,23 +86,23 @@ public:
             auto p = ports.at(i);
             
             if (t.isError()) {
-                return util::Error(util::ErrorCode::initFailed, 
+                return {util::ErrorCode::initFailed,
                     "failed initializing one of the platform motors, invalid motor controller with index" 
-                    + util::to_string(i) + ": " + t.Err().msg);
+                    + util::to_string(i) + ": " + t.Err().msg};
             }
             
             if (p.isError()) {
-                return util::Error(util::ErrorCode::invalidArgument, 
+                return {util::ErrorCode::invalidArgument,
                     "failed initializing one of the platform motors, invalid port array was given at index " 
-                    + util::to_string(i) + " : " + p.Err().msg);
+                    + util::to_string(i) + " : " + p.Err().msg};
             }
             
             auto e = t().init(p());
             
             if(e) {
-                return util::Error(util::ErrorCode::initFailed, 
+                return {util::ErrorCode::initFailed,
                     "failed initializing one of the platform motors, failed motor controller initialization at index "
-                    + util::to_string(i) + " and port with value " + util::to_string(static_cast<size_t>(p())) + ": " + e.msg);
+                    + util::to_string(i) + " and port with value " + util::to_string(static_cast<size_t>(p())) + ": " + e.msg};
             }
         }
         
@@ -118,7 +117,7 @@ public:
 
 namespace calculators {
     
-    [[nodiscard]] util::Result<motor::Speed> calculateMotorLinearSpeed(motor::MotorInfo info, double angle, motor::Speed speed) noexcept {
+    [[nodiscard]] inline util::Result<motor::Speed> calculateMotorLinearSpeed(const motor::MotorInfo& info, double angle, const motor::Speed& speed) noexcept {
         if(info.parallelAxisesAmount == 0) {
             return util::Error(util::ErrorCode::invalidArgument, "amount of motors with parallel movement axises cannot be zero in motor config");
         }
@@ -131,7 +130,7 @@ namespace calculators {
         
     }
     
-    [[nodiscard]] util::Result<PlatformMotorSpeeds> calculatePlatformLinearSpeeds(PlatformMotorConfig config, double angle, motor::Speed speed) noexcept {
+    [[nodiscard]] inline util::Result<PlatformMotorSpeeds> calculatePlatformLinearSpeeds(const PlatformMotorConfig& config, double angle, const motor::Speed& speed) noexcept {
         PlatformMotorSpeeds speeds(config.Size());
         
         for(size_t i = 0; i < speeds.Size(); i++) {

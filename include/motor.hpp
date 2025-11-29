@@ -21,8 +21,8 @@ public:
     
     MotorInfo() = default;
     
-    MotorInfo(double p_ap, double p_d, double p_wr, SpeedRange p_speed, SpeedRange p_intSpeed, bool p_reversed = false) noexcept
-    : anglePos(p_ap), distance(p_d), wheelR(p_wr), speedRange(p_speed), interfaceSpeedRange(p_intSpeed), isReversed(p_reversed) {}
+    MotorInfo(double p_ap, double p_d, double p_wr, const SpeedRange& p_speed, const SpeedRange& p_interfaceSpeed, bool p_reversed = false) noexcept
+    : anglePos(p_ap), distance(p_d), wheelR(p_wr), speedRange(p_speed), interfaceSpeedRange(p_interfaceSpeed), isReversed(p_reversed) {}
     
 };
 
@@ -40,18 +40,24 @@ public:
     virtual inline MotorInfo Info() const {
         return info;
     }
+
+    virtual ~MotorInfoIncluded() = default;
 };
 
 template <typename T> class InitializationController {
 public:
     virtual util::Error init(T) = 0;
+
+    virtual ~InitializationController() = default;
 };
+
 class SpeedController {
 public:
 
     virtual util::Error setSpeed(Speed) = 0;
     virtual util::Result<Speed> getSpeed() const = 0;
-    
+
+    virtual ~SpeedController() = default;
 };
 
 class RangedSpeedController : public MotorInfoIncluded, public SpeedController {
@@ -81,6 +87,8 @@ public:
     [[nodiscard]] virtual inline util::Error setSpeedInRange(Speed speed, SpeedRange range) noexcept {
         return setSpeed(info.interfaceSpeedRange.mapValueFromRange(range.restrict(speed), range));
     }
+
+    virtual ~RangedSpeedController() = default;
 };
 
 } //namespace vislib::motor::controllers
