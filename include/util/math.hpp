@@ -83,7 +83,10 @@ template <typename T> class Range {
 public:
     T lowest = 0;
     T highest = 0;
-
+    
+    bool isInfiniteLow = false;
+    bool isInfiniteHigh = false;
+    
     template<typename D> static D map(const D& x, const D& in_min, const D& in_max, const D& out_min, const D& out_max) noexcept(numberNoexcept<D>()) {
         if (in_max == in_min) {
             return out_min;
@@ -97,14 +100,20 @@ public:
 
     Range() = default;
     Range(const Range&) = default;
-    Range(const T& p_lowest, const T& p_highest) noexcept(noexcept(T(p_lowest)) && noexcept(T(p_highest)) && numberNoexcept<T>()) : lowest(p_lowest), highest(p_highest) {}
+    Range(const T& p_lowest, const T& p_highest, bool isInfiniteLow = false, bool isInfiniteHigh = false)
+        noexcept(noexcept(T(p_lowest)) && noexcept(T(p_highest)) && numberNoexcept<T>())
+        : lowest(p_lowest), highest(p_highest), isInfiniteLow(isInfiniteLow), isInfiniteHigh(isInfiniteHigh) {}
 
     inline constexpr bool contains(const T& v) const noexcept(numberNoexcept<T>()) {
-        return v >= lowest && v <= highest;
+        return (v >= lowest || isInfiniteLow) && (v <= highest || isInfiniteHigh);
     }
 
     inline constexpr T restrict(const T& v) const noexcept(numberNoexcept<T>()) {
-        return (v < lowest) ? lowest : ((v > highest) ? highest : v);
+        
+        return  ((v < lowest && isInfiniteLow) || (v > highest && isInfiniteHigh)) ? v :
+                ((v < lowest) ? lowest : 
+                ((v > highest) ? highest :
+                    v));
     }
 
     inline constexpr T mapValueFromRange(const T& v, Range<T> r) const noexcept(numberNoexcept<T>()) {
