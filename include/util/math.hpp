@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include "types.hpp"
 #include "containers.hpp"
 #include "errordef.hpp"
 #include "memory.hpp"
@@ -216,6 +217,14 @@ public:
     }
 
     const T& at(size_t i) const noexcept {
+        return data[i];
+    }
+
+    T& operator[](size_t i) noexcept {
+        return data[i];
+    }
+
+    const T& operator[](size_t i) const noexcept {
         return data[i];
     }
 
