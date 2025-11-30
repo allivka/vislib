@@ -9,6 +9,7 @@ enum class ErrorCode {
     initFailed,
     invalidArgument,
     invalidConfiguration,
+    invalidResource,
     failedConnection,
     outOfRange,
     surpassedLimit,

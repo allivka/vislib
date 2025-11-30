@@ -5,6 +5,7 @@
 #include "errors.hpp"
 #include "exception.hpp"
 #include "math.hpp"
+#include "time.hpp"
 
 namespace vislib::util {
 
