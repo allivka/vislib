@@ -79,8 +79,8 @@ public:
     T lowest = 0;
     T highest = 0;
     
-    bool isInfiniteLow = false;
-    bool isInfiniteHigh = false;
+    bool isInfiniteLow;
+    bool isInfiniteHigh;
     
     template<typename D> static D map(const D& x, const D& in_min, const D& in_max, const D& out_min, const D& out_max) noexcept(numberNoexcept<D>()) {
         if (in_max == in_min) {
@@ -93,7 +93,7 @@ public:
         return map(x, in.lowest, in.highest, out.lowest, out.highest);
     }
 
-    Range() = default;
+    Range() : isInfiniteLow(true), isInfiniteHigh(true) {};
     Range(const Range&) = default;
     Range(const T& p_lowest, const T& p_highest, bool isInfiniteLow = false, bool isInfiniteHigh = false)
         noexcept(noexcept(T(p_lowest)) && noexcept(T(p_highest)) && numberNoexcept<T>())
@@ -130,6 +130,8 @@ protected:
     
 public:
     
+    Integrator() = default;
+
     Integrator(const TimeType& startTime, const Range<T> limit) noexcept(numberNoexcept<T>() && numberNoexcept<TimeType>())
         : lastTime(startTime), limit(limit) {}
     
@@ -139,7 +141,7 @@ public:
     }
     
     util::Result<T> update(const TimeType& currentTime, const T& value) noexcept(numberNoexcept<T>() && numberNoexcept<TimeType>()) {
-        if(currentTime < lastTime) return {ErrorCode::invalidArgument, "Current time is less than last operation time. Integrator state wasn't changed"};
+        if(currentTime < lastTime) return Error{ErrorCode::invalidArgument, "Current time is less than last operation time. Integrator state wasn't changed"};
         
         T result = integral + value * (currentTime - lastTime);
         
