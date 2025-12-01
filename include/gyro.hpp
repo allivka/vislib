@@ -13,9 +13,9 @@ template <typename T> struct YPR {
     
     YPR(const T& p_yaw, const T& p_pitch, const T& p_roll) noexcept(util::numberNoexcept<T>()) : yaw(p_yaw), pitch(p_pitch), roll(p_roll) {}
     
-    YPR(const YPR<T>& ) noexcept(util::numberNoexcept<T>()) : = default;
+    YPR(const YPR<T>& ) noexcept(util::numberNoexcept<T>()) = default;
     
-    YPR(YPR<T>&&) noexcept(util::numberNoexcept<T>()) = default
+    YPR(YPR<T>&&) noexcept(util::numberNoexcept<T>()) = default;
     
     YPR<T>& operator=(const YPR<T>& other) noexcept(util::numberNoexcept<T>()) = default;
     
@@ -352,7 +352,7 @@ public:
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class YPRCalculatorWithAcceleration
-    : public YPRCalculator<T, TimeType>, public PitchCalculatorWithAcceleration<T, TimeType>, public RollCalculatorWithAcceleration<T, TimeType, WT> {
+    : public virtual YPRCalculator<T, TimeType>, public PitchCalculatorWithAcceleration<T, TimeType>, public RollCalculatorWithAcceleration<T, TimeType, WT> {
 public:
     virtual ~YPRCalculatorWithAcceleration() = default;
 };
@@ -381,7 +381,7 @@ public:
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculator
-    : public YPRCalculator<YPRType, TimeType, WT>, virtual public AccelerationGetter<AccAngularSpeedType>, virtual public AngularSpeedGetter<AccAngularSpeedType> {
+    : virtual public YPRCalculator<YPRType, TimeType, WT>, virtual public AccelerationGetter<AccAngularSpeedType>, virtual public AngularSpeedGetter<AccAngularSpeedType> {
 
 public:
     virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> calculateGyroData(const TimeType& current) const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
@@ -402,8 +402,10 @@ public:
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculatorWithAcceleration
-    : public YPRCalculatorWithAcceleration<YPRType, TimeType, WT>, public GyroDataCalculator<YPRType, TimeType, WT, AccAngularSpeedType> {
+    : virtual public YPRCalculatorWithAcceleration<YPRType, TimeType, WT>, public GyroDataCalculator<YPRType, TimeType, WT, AccAngularSpeedType> {
 public:
+    
+    using YPRCalculatorWithAcceleration<YPRType, TimeType, WT>::calculateYPR;
 
     virtual ~GyroDataCalculatorWithAcceleration() = default;
 };
@@ -442,7 +444,7 @@ public:
     }
     
     virtual inline util::Error update(UpdateParameterType currentTime) override {
-        auto e = static_cast<const YPRCalculatorWithAcceleration<YPRType, TimeType, WT>*>(this)->calculateYPR(currentTime);
+        auto e = this->calculateYPR(currentTime);
 
         if (e) return e.Err();
 
