@@ -5,44 +5,50 @@
 
 namespace vislib::util {
 
-template<typename T> class TimeGetter {
+template<typename T, typename Derived> class TimeGetter {
 public:
-    virtual Result<T> getTime() const = 0;
-    virtual ~TimeGetter() = default;
+    Result<T> getTime() const {
+        return static_cast<const Derived*>(this)->getTimeImplementation();
+    }
+    
+    Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
+        return Error{ErrorCode::invalidConfiguration, "getTimeImplementation not implemented"};
+    }
 };
 
-template<typename T> class Timer : virtual public TimeGetter<T>{
+template<typename T, typename Getter> class Timer : public TimeGetter<T, Timer<T, Getter>> {
 protected:
     T startTime{};
     T targetTime{};
-    TimeGetter<T> getter{};
-public:
-    Timer(const TimeGetter<T>& timeGetter) noexcept(assignableNoexcept<T>()) : getter(timeGetter) {}
+    TimeGetter<T, Getter> getter{};
 
-    virtual Result<T> start() noexcept(assignableNoexcept<T>()) {
+public:
+    Timer(const TimeGetter<T, Getter>& timeGetter) noexcept(assignableNoexcept<T>()) : getter(timeGetter) {}
+
+    Result<T> start() noexcept(assignableNoexcept<T>()) {
 
         Result<T> e = getter.getTime();
 
-        if (e) return e.err();
+        if (e) return e.Err();
 
         startTime = e;
 
         return startTime;
 
     }
-
-    virtual Result<T> getTime() const noexcept(numberNoexcept<T>()) override {
+    
+protected:
+    
+    Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
         Result<T> e = getter.getTime();
 
-        if (e) return e.err();
+        if (e) return e.Err();
 
-        if (e() < startTime) return {ErrorCode::invalidConfiguration, "The measurement start time is ahead of  current time"};
+        if (e() < startTime) return Error{ErrorCode::invalidConfiguration, "The measurement start time is ahead of  current time"};
 
         return e() - startTime;
 
     }
-
-    virtual ~Timer() = default;
 };
 
 }
