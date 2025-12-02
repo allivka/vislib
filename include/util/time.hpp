@@ -11,6 +11,7 @@ public:
         return static_cast<const Derived*>(this)->getTimeImplementation();
     }
     
+protected:
     Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
         return Error{ErrorCode::invalidConfiguration, "getTimeImplementation not implemented"};
     }
@@ -23,8 +24,11 @@ protected:
     TimeGetter<T, Getter> getter{};
 
 public:
+    
+    friend class TimeGetter<T, Timer<T, Getter>>;
+    
     Timer(const TimeGetter<T, Getter>& timeGetter) noexcept(assignableNoexcept<T>()) : getter(timeGetter) {}
-
+    
     Result<T> start() noexcept(assignableNoexcept<T>()) {
 
         Result<T> e = getter.getTime();
