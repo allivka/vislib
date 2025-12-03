@@ -410,7 +410,7 @@ public:
     virtual ~GyroDataCalculatorWithAcceleration() = default;
 };
 
-template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroController :
+template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroCalculator :
     public BaseGyroController<UpdateParameterType>,
     public GyroDataGetter<YPRType, AccAngularSpeedType>,
     public GyroDataCalculatorWithAcceleration<YPRType, TimeType, WT, AccAngularSpeedType> {
@@ -451,7 +451,16 @@ public:
         return {};
     }
     
-    virtual ~UltimateGyroController() = default;
+    virtual ~UltimateGyroCalculator() = default;
+};
+
+template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroGetter :
+    public BaseGyroController<UpdateParameterType>,
+    public GyroDataGetter<YPRType, AccAngularSpeedType> {
+
+public:
+    
+    virtual ~UltimateGyroGetter() = default;
 };
 
 } // namespace vislib::gyro
