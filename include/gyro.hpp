@@ -384,7 +384,7 @@ template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, 
     : virtual public YPRCalculator<YPRType, TimeType, WT>, virtual public AccelerationGetter<AccAngularSpeedType>, virtual public AngularSpeedGetter<AccAngularSpeedType> {
 
 public:
-    virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> calculateGyroData(const TimeType& current) const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
+    virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> calculateGyroData(const TimeType& current) noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         
         util::Result<YPR<YPRType>> ypr = this->calculateYPR(current);
         if(ypr) return ypr.Err();
