@@ -31,13 +31,15 @@ public:
 
     UniquePtr(const UniquePtr&) = delete;
 
+    UniquePtr(nullptr_t) : ptr(nullptr) {}
+
     UniquePtr(UniquePtr&& other) noexcept {
         ptr = other.ptr;
         other.ptr = nullptr;
     }
 
     ~UniquePtr() noexcept {
-        DELETER(ptr);
+        if (ptr != nullptr) DELETER(ptr);
     }
 
     T& operator*() const noexcept {
@@ -55,7 +57,7 @@ public:
     UniquePtr<T>& operator=(const UniquePtr&) = delete;
 
     UniquePtr<T>& operator=(UniquePtr&& other) noexcept {
-        DELETER(ptr);
+        if (ptr != nullptr) DELETER(ptr);
         ptr = other.ptr;
         other.ptr = nullptr;
         return *this;
@@ -70,6 +72,26 @@ public:
         return *this;
     }
 
+    bool operator==(const UniquePtr<T>& other) const noexcept {
+        return *ptr == *other.ptr;
+    }
+
+    bool operator!=(const UniquePtr<T>& other) const noexcept {
+        return *ptr != *other.ptr;
+    }
+
+    bool operator==(nullptr_t) const noexcept {
+        return ptr == nullptr;
+    }
+
+    bool operator!=(nullptr_t) const noexcept {
+        return ptr != nullptr;
+    }
+
+    bool is(const UniquePtr<T>& other) const noexcept {
+        return ptr == other.ptr;
+    }
+
     inline T* get() const noexcept {
         return ptr;
     }
@@ -81,7 +103,7 @@ public:
     }
 
     void reset(T *new_ptr = nullptr) noexcept {
-        DELETER(ptr);
+        if (ptr != nullptr) DELETER(ptr);
         ptr = new_ptr;
     }
 
