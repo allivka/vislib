@@ -6,6 +6,8 @@
 #include "exception.hpp"
 #include "math.hpp"
 #include "time.hpp"
+#include "callable.hpp"
+#include "abstract.hpp"
 
 namespace vislib::util {
 

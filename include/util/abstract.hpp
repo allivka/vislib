@@ -1,14 +1,25 @@
 #pragma once
 
-#include "memory.hpp"
-#include <cassert>
-
-
 namespace vislib::util {
 
-template <typename To, typename From> To downcast(const From* from) {
-    assert(dynamic_cast<To>(from) != nullptr);
-    return static_cast<To>(from);
+template <typename T> constexpr T&& move(T& t) noexcept {
+    return static_cast<T&&>(t);
+}
+
+template<class T> struct remove_reference {
+    typedef T type;
+};
+
+template<class T> struct remove_reference<T&> {
+    typedef T type;
+};
+
+template<class T> struct remove_reference<T&&> {
+    typedef T type;
+};
+
+template<typename T> inline constexpr T&& forward(typename remove_reference<T>::type& t) noexcept {
+    return static_cast<T&&>(t);
 }
 
 } //namespace vislib::util

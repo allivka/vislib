@@ -2,10 +2,6 @@
 
 namespace vislib::util {
 
-template <typename T> constexpr T&& move(T& t) noexcept {
-    return static_cast<T&&>(t);
-}
-
 template <typename T> inline void swap(T& x, T& y) noexcept(noexcept(T(move(x))) && noexcept(x = move(y)) && noexcept(y = move(x))) {
     T temp = move(x);
     x = move(y);
@@ -54,16 +50,16 @@ public:
         return ptr != nullptr;
     }
 
-    UniquePtr<T>& operator=(const UniquePtr&) = delete;
+    UniquePtr& operator=(const UniquePtr&) = delete;
 
-    UniquePtr<T>& operator=(UniquePtr&& other) noexcept {
+    UniquePtr& operator=(UniquePtr&& other) noexcept {
         if (ptr != nullptr) DELETER(ptr);
         ptr = other.ptr;
         other.ptr = nullptr;
         return *this;
     }
 
-    UniquePtr<T>& operator=(const T& v) {
+    UniquePtr& operator=(const T& v) {
         if(ptr == nullptr) {
             ptr = new T(v);
         } else {

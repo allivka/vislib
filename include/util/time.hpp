@@ -2,33 +2,25 @@
 
 #include "errordef.hpp"
 #include "exception.hpp"
+#include "callable.hpp"
+#include "abstract.hpp"
 
 namespace vislib::util {
 
-template<typename T, typename Derived> class TimeGetter {
-public:
-    Result<T> getTime() const {
-        return static_cast<const Derived*>(this)->getTimeImplementation();
-    }
-    
-protected:
-    Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
-        return Error{ErrorCode::invalidConfiguration, "getTimeImplementation not implemented"};
-    }
-};
+template <typename T> using TimeGetter = Callable<T>;
 
-template<typename T, typename Getter> class Timer : public TimeGetter<T, Timer<T, Getter>> {
+template<typename T> class Timer {
 protected:
     T startTime{};
-    TimeGetter<T, Getter> getter{};
+    TimeGetter<T> getter{};
 
 public:
-    
-    Timer(const TimeGetter<T, Getter>& timeGetter) noexcept : getter(timeGetter) {}
-    
+
+    Timer(TimeGetter<T>&& timeGetter) noexcept : getter(move(timeGetter)) {}
+
     Result<T> start() noexcept(assignableNoexcept<T>()) {
 
-        Result<T> e = getter.getTime();
+        Result<T> e = getter();
 
         if (e) return e.Err();
 
@@ -37,11 +29,9 @@ public:
         return startTime;
 
     }
-    
-protected:
-    
-    Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
-        Result<T> e = getter.getTime();
+
+    Result<T> getTime() const noexcept(numberNoexcept<T>()) {
+        Result<T> e = getter();
 
         if (e) return e.Err();
 
@@ -50,24 +40,28 @@ protected:
         return e() - startTime;
 
     }
+
+    Result<T> operator()() const noexcept(numberNoexcept<T>()) {
+        return getTime();
+    }
 };
 
-template <typename T, typename Getter> class IncrementTimer : public TimeGetter<T, Getter> {
+template <typename T> class IncrementTimer {
     protected:
-    
+
     bool flagPaused = false;
     T timeBuffer{};
     T lastTime{};
-    TimeGetter<T, Getter> getter{};
-    
+    TimeGetter<T> getter{};
+
     public:
-    friend class TimeGetter<T, Timer<T, Getter>>;
-    IncrementTimer(const TimeGetter<T, Getter>& getter) noexcept : getter(getter) {}
+
+    IncrementTimer(TimeGetter<T>&& getter) noexcept : getter(move(getter)) {}
 
     Result<T> start() noexcept(assignableNoexcept<T>()) {
 
-        auto e = getter.getTime();
-        
+        auto e = getter();
+
         if(e) return e.Err();
         lastTime = e();
 
@@ -79,22 +73,22 @@ template <typename T, typename Getter> class IncrementTimer : public TimeGetter<
 
         return lastTime;
     }
-    
+
     Result<T> update() noexcept(numberNoexcept<T>()) {
 
         if (flagPaused) return timeBuffer;
 
-        auto e = getter.getTime();
-        
+        auto e = getter();
+
         if(e) return e.Err();
-        
+
         T diff = e() - lastTime;
-        
+
         if(diff <= 0) timeBuffer += e();
         else timeBuffer += diff;
-        
+
         return timeBuffer;
-        
+
     }
 
     Result<T> pause() noexcept(numberNoexcept<T>()) {
@@ -111,7 +105,7 @@ template <typename T, typename Getter> class IncrementTimer : public TimeGetter<
         timeBuffer = T{};
         lastTime = T{};
     }
-    
+
     Result<T> operator++() noexcept(numberNoexcept<T>()) {
         return update();
     }
@@ -119,10 +113,12 @@ template <typename T, typename Getter> class IncrementTimer : public TimeGetter<
     Result<T> operator++(int) noexcept(numberNoexcept<T>()) {
         return update();
     }
-    
-    protected:
-    
-    Result<T> getTimeImplementation() const noexcept(numberNoexcept<T>()) {
+
+    Result<T> getTime() const noexcept(numberNoexcept<T>()) {
+        return timeBuffer;
+    }
+
+    Result<T> operator()() const noexcept(numberNoexcept<T>()) {
         return timeBuffer;
     }
 };

@@ -27,7 +27,7 @@ template <typename T> using AngularSpeed = util::Vector<T>;
 
 template <typename UpdateParameterType> class BaseGyroController {
 public:
-    virtual util::Error update(UpdateParameterType)  = 0;
+    virtual util::Error update(UpdateParameterType) = 0;
     virtual util::Error calibrate() = 0;
     virtual ~BaseGyroController() = default;
 };
@@ -331,7 +331,8 @@ public:
     virtual ~PitchCalculatorWithAcceleration() = default;
 };
 
-template <typename T, typename TimeType = T, typename WT = T> class RollCalculatorWithAcceleration : virtual public RollCalculator<T, TimeType, WT>, virtual public AccelerationGetter<T> {
+template <typename T, typename TimeType = T, typename WT = T> class RollCalculatorWithAcceleration
+    : virtual public RollCalculator<T, TimeType, WT>, virtual public AccelerationGetter<T> {
 protected:
     virtual util::Result<T> internalNonIntegralPartRollCalculation() const override {
         util::Result<Acceleration<T>> acceleration = this->getAcceleration();
@@ -454,7 +455,7 @@ public:
     virtual ~UltimateGyroCalculator() = default;
 };
 
-template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroGetter :
+template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroGetter :
     public BaseGyroController<UpdateParameterType>,
     public GyroDataGetter<YPRType, AccAngularSpeedType> {
 

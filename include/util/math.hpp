@@ -4,7 +4,7 @@
 #include "types.hpp"
 #include "containers.hpp"
 #include "errordef.hpp"
-#include "memory.hpp"
+#include "abstract.hpp"
 #include "exception.hpp"
 
 namespace vislib::util {
