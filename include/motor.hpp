@@ -88,7 +88,7 @@ public:
         return setSpeed(info.interfaceSpeedRange.mapValueFromRange(range.restrict(speed), range));
     }
 
-    virtual ~RangedSpeedController() = default;
+    virtual ~RangedSpeedController() override = default;
 };
 
 } //namespace vislib::motor::controllers

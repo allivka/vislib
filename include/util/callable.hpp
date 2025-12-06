@@ -17,8 +17,8 @@ class CallableWrapper : public CallableInterface<ReturnType, ArgumentTypes...> {
     CallableType callable;
 
 public:
-    explicit CallableWrapper(const CallableType& c) : callable(c) {}
-    explicit CallableWrapper(CallableType&& c) : callable(static_cast<CallableType&&>(c)) {}
+    CallableWrapper(const CallableType& c) : callable(c) {}
+    CallableWrapper(CallableType&& c) : callable(static_cast<CallableType&&>(c)) {}
 
     ReturnType operator()(ArgumentTypes... args) override {
         return callable(args...);
@@ -45,11 +45,6 @@ public:
     ReturnType execute(ArgumentTypes... args) const {
         assert(impl != nullptr);
         return (*impl)(args...);
-    }
-
-    CallableInterface<ReturnType, ArgumentTypes...> raw() const {
-        assert(impl != nullptr);
-        return *impl;
     }
 
     bool isValid() const noexcept {

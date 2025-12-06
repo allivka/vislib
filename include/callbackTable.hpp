@@ -5,9 +5,15 @@
 namespace vislib {
     template <typename Port_t> class CallbackTable;
     using Callback = util::Callable<void>;
-    template <typename Port_t> using CallbackPortChecker = util::Callable<bool(Port_t)>;
-    template <typename Port_t> using CallbackPortInitializer = util::Callable<util::Error(Port_t)>;
-    template <typename Port_t> using CallbackPortAttacher = util::Callable<util::Error(Port_t)>;
+    using CallbackExecutor = util::Callable<util::Error, Callback>;
+    template <typename Port_t> using CallbackPortChecker = util::Callable<bool, Port_t>;
+    template <typename Port_t> using CallbackPortInitializer = util::Callable<util::Error, Port_t>;
+    template <typename Port_t> using CallbackPortAttacher = util::Callable<util::Error, Port_t>;
+    
+    inline util::Error defaultCallbackExecutor(Callback&& c) {
+        c();
+        return {};
+    }
 }
 
 template <typename Port_t> class vislib::CallbackTable {
@@ -15,6 +21,7 @@ protected:
     util::Array<Port_t> ports;
     CallbackPortAttacher<Port_t> attacher;
     CallbackPortChecker<Port_t> checker;
+    CallbackExecutor executor;
     util::Array<Callback> callbacks;
 
     bool initialized = false;
@@ -24,11 +31,13 @@ public:
     util::Error InitCallbackTable(const util::Array<Port_t>& ports,
         CallbackPortInitializer<Port_t>&& initializer,
         CallbackPortAttacher<Port_t>&& attacher,
-        CallbackPortChecker<Port_t>&& checker) {
+        CallbackPortChecker<Port_t>&& checker,
+        CallbackExecutor&& executor ) {
 
         this->ports = ports;
         this->attacher = util::move(attacher);
         this->checker = util::move(checker);
+        this->executor = util::move(executor);
 
         Port_t max = ports[0];
         for (size_t i = 0; i < ports.Size(); i++) max = max >= ports[i] ? max : ports[i];
@@ -89,7 +98,11 @@ public:
         if (!callbacks[static_cast<size_t>(port)].isValid()) return
         {util::ErrorCode::invalidConfiguration, "The port " + util::to_string(static_cast<size_t>(port)) + " has no set callback"};
 
-        if (checker.execute(port)) callbacks[static_cast<size_t>(port)].execute();
+        if (!checker.execute(port)) return {};
+        
+        util::Error e = executor.execute(callbacks[static_cast<size_t>(port)]);
+        
+        if(e) return e;
 
         return {};
 

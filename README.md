@@ -2,7 +2,7 @@
 
 robotics c++ template library
 
-## version: 0.0.19
+## version: 0.0.20
 
 ## Description
 
@@ -22,3 +22,7 @@ lib_deps =
     alivka/vislib
     ...
 ```
+
+## Documentation
+
+Library is currently in an active development stage => no useful documentation will be provided in a near future.

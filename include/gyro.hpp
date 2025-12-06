@@ -121,7 +121,7 @@ public:
         return YPR<T>{yaw(), pitch(), roll()};
     }
     
-    virtual ~YPRGetter() = default;
+    virtual ~YPRGetter() override = default;
 };
 
 // calculators
@@ -169,7 +169,7 @@ public:
         
     }
     
-    virtual ~YawCalculator() = default;
+    virtual ~YawCalculator() override = default;
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class PitchCalculator : virtual public PitchGetter<T>, virtual public AngularSpeedGetter<T> {
@@ -215,7 +215,7 @@ public:
         
     }
     
-    virtual ~PitchCalculator() = default;
+    virtual ~PitchCalculator() override = default;
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class RollCalculator : virtual public RollGetter<T>, virtual public AngularSpeedGetter<T> {
@@ -261,7 +261,7 @@ public:
         
     }
     
-    virtual ~RollCalculator() = default;
+    virtual ~RollCalculator() override = default;
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class YPRCalculator :
@@ -301,7 +301,7 @@ public:
         return YPR<T>{yaw(), pitch(), roll()};
     }
     
-    virtual ~YPRCalculator() = default;
+    virtual ~YPRCalculator() override = default;
 };
 
 
@@ -328,7 +328,7 @@ protected:
 
 public:
 
-    virtual ~PitchCalculatorWithAcceleration() = default;
+    virtual ~PitchCalculatorWithAcceleration() override = default;
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class RollCalculatorWithAcceleration
@@ -349,13 +349,13 @@ protected:
 
 public:
 
-    virtual ~RollCalculatorWithAcceleration() = default;
+    virtual ~RollCalculatorWithAcceleration() override = default;
 };
 
 template <typename T, typename TimeType = T, typename WT = T> class YPRCalculatorWithAcceleration
     : public virtual YPRCalculator<T, TimeType>, public PitchCalculatorWithAcceleration<T, TimeType>, public RollCalculatorWithAcceleration<T, TimeType, WT> {
 public:
-    virtual ~YPRCalculatorWithAcceleration() = default;
+    virtual ~YPRCalculatorWithAcceleration() override = default;
 };
 
 // controllers
@@ -378,7 +378,7 @@ public:
         return GyroData<YPRType, AccAngularSpeedType>{ypr(), acceleration(), speed()};
     }
     
-    virtual ~GyroDataGetter() = default;
+    virtual ~GyroDataGetter() override = default;
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculator
@@ -399,7 +399,7 @@ public:
         return GyroData<YPRType, AccAngularSpeedType>{ypr(), acceleration(), speed()};
     }
     
-    virtual ~GyroDataCalculator() = default;
+    virtual ~GyroDataCalculator() override = default;
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType> class GyroDataCalculatorWithAcceleration
@@ -408,7 +408,7 @@ public:
     
     using YPRCalculatorWithAcceleration<YPRType, TimeType, WT>::calculateYPR;
 
-    virtual ~GyroDataCalculatorWithAcceleration() = default;
+    virtual ~GyroDataCalculatorWithAcceleration() override = default;
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename WT = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroCalculator :
@@ -452,7 +452,7 @@ public:
         return {};
     }
     
-    virtual ~UltimateGyroCalculator() = default;
+    virtual ~UltimateGyroCalculator() override = default;
 };
 
 template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpeedType = YPRType, typename UpdateParameterType = TimeType> class UltimateGyroGetter :
@@ -461,7 +461,7 @@ template <typename YPRType, typename TimeType = YPRType, typename AccAngularSpee
 
 public:
     
-    virtual ~UltimateGyroGetter() = default;
+    virtual ~UltimateGyroGetter() override = default;
 };
 
 } // namespace vislib::gyro

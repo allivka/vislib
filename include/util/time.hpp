@@ -7,7 +7,7 @@
 
 namespace vislib::util {
 
-template <typename T> using TimeGetter = Callable<T>;
+template <typename T> using TimeGetter = Callable<Result<T>>;
 
 template<typename T> class Timer {
 protected:
@@ -31,7 +31,7 @@ public:
     }
 
     Result<T> getTime() const noexcept(numberNoexcept<T>()) {
-        Result<T> e = getter();
+        T e = getter();
 
         if (e) return e.Err();
 
