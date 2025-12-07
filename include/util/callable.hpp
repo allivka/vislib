@@ -33,16 +33,17 @@ public:
     Callable() = default;
 
     template<typename C> Callable(C c) {
-        using Wrapper = CallableWrapper<C, ReturnType, ArgumentTypes...>;
-        impl = new Wrapper(static_cast<C&&>(c));
+        impl = new CallableWrapper<C, ReturnType, ArgumentTypes...>(static_cast<C&&>(c));
     }
 
     ReturnType operator()(ArgumentTypes... args) {
+        // static_assert(impl != nullptr, "Calling a null Callable object");
         assert(impl != nullptr);
         return (*impl)(args...);
     }
 
-    ReturnType execute(ArgumentTypes... args) const {
+    ReturnType execute(ArgumentTypes... args) {
+        // static_assert(impl != nullptr, "Calling a null Callable object");
         assert(impl != nullptr);
         return (*impl)(args...);
     }
@@ -57,7 +58,49 @@ public:
     }
 
     ~Callable() {
+        if (impl == nullptr) return;
         delete impl;
+    }
+};
+
+template <typename ReturnType> class Callable<ReturnType> {
+    CallableInterface<ReturnType>* impl = nullptr;
+
+public:
+    Callable() = default;
+
+    template<typename C> Callable(C c) {
+        impl = new CallableWrapper<C, ReturnType>(static_cast<C&&>(c));
+    }
+
+    ReturnType operator()() {
+        // static_assert(impl != nullptr, "Calling a null Callable object");
+        assert(impl != nullptr);
+        return (*impl)();
+    }
+
+    ReturnType execute() {
+        // static_assert(impl != nullptr, "Calling a null Callable object");
+        assert(impl != nullptr);
+        return (*impl)();
+    }
+
+    bool isValid() const noexcept {
+        return impl != nullptr;
+    }
+
+    void reset() {
+        delete impl;
+        impl = nullptr;
+    }
+
+    ~Callable() {
+        if (impl == nullptr) return;
+        delete impl;
+    }
+
+    operator ReturnType() {
+        return *(this->impl);
     }
 };
 
