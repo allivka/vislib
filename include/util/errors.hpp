@@ -6,57 +6,51 @@ namespace vislib::util {
 
 class Error {
 public:
-    ErrorCode errcode;
-    String msg = "Success";
+    ErrorCode errcode = ErrorCode::success;
+    String msg = "";
 
     operator ErrorCode() const noexcept { return errcode; }
 
-    operator long long() const noexcept { return static_cast<long long>(errcode); }
-
     operator String() const noexcept { return msg; }
 
-    operator const char*() const noexcept { return msg.c_str(); }
+    operator bool() const noexcept { return errcode != ErrorCode::success; }
 
-    explicit operator bool() const noexcept { return errcode != ErrorCode::success; }
+    bool isError() const noexcept { return errcode != ErrorCode::success; }
 
     bool operator==(const Error& err) const noexcept {
         return errcode == err.errcode;
     }
 
-    Error() noexcept : errcode(ErrorCode::success), msg("Successful operation") {}
+    Error() noexcept = default;
 
-    Error(ErrorCode code, const String& p_msg = "Default error") noexcept : errcode(code), msg(p_msg) {
-        if (code == ErrorCode::success) msg = "Successful operation";
-        else if(p_msg == "Default error") msg = "Undefined error occur";
-    }
+    Error(ErrorCode code, const String& p_msg = "") noexcept : errcode(code), msg(p_msg) {}
 };
 
-template <typename T, typename E> class ReturnResult {
+template <typename T> class Result {
 protected:
 
-    bool errorFlag = false;
-    T value;
-    E err;
+    T value{};
+    Error err{};
 
 public:
 
-    ReturnResult(const T& v) noexcept(noexcept(T(v))) : errorFlag(false), value(v) { }
+    Result(const T& v) noexcept(noexcept(T(v))) : value(v) { }
 
-    ReturnResult(const E& e) noexcept(noexcept(E(e))) : errorFlag(true), err(e) { }
+    Result(const Error& e) noexcept : err(e) { }
 
-    inline constexpr bool isError() const noexcept { return errorFlag; }
-    inline constexpr bool isOK() const noexcept { return !errorFlag; }
+    constexpr bool isError() const noexcept { return err.isError(); }
+    constexpr bool isOk() const noexcept { return !err.isError(); }
 
     bool getValue(T& out) const noexcept(noexcept(out = value)) {
-        if (!errorFlag) {
+        if (isOk()) {
             out = value;
             return true;
         }
         return false;
     }
 
-    bool getError(E& out) const noexcept(noexcept(out = err)) {
-        if (errorFlag) {
+    bool getError(Error& out) const noexcept(noexcept(out = err)) {
+        if (isError()) {
             out = err;
             return true;
         }
@@ -64,32 +58,22 @@ public:
     }
 
     operator T() const noexcept(noexcept(T(value))) { return value; }
-    operator E() const noexcept(noexcept(E(err))) { return err; }
+    operator Error() const noexcept { return err; }
 
-    inline constexpr operator bool() const noexcept { return errorFlag; }
+    constexpr operator bool() const noexcept { return isError(); }
 
     T operator()() const noexcept(noexcept(T(value))) { return value; }
 
-    inline constexpr T Value() const noexcept(noexcept(T(value))) { return value; }
+    T Value() const noexcept(noexcept(T(value))) { return value; }
 
-    inline constexpr E Err() const noexcept(noexcept(E(err))) { return err; }
+    Error error() const noexcept { return err; }
 };
 
 template <typename T>
-class Result : public ReturnResult<T, Error> {
+class Result<T&> : public Result<T*> {
 public:
-    Result(T v) noexcept(noexcept(ReturnResult<T, Error>(v)))
-        : ReturnResult<T, Error>(v) {}
-
-    Result(Error e) noexcept(noexcept(ReturnResult<T, Error>(e)))
-        : ReturnResult<T, Error>(e) {}
-};
-
-template <typename T>
-class Result<T&> : public ReturnResult<T*, Error> {
-public:
-    Result(T& v) noexcept : ReturnResult<T*, Error>(&v) {}
-    Result(Error e) noexcept : ReturnResult<T*, Error>(e) {}
+    Result(T& v) noexcept : Result<T*>(&v) {}
+    Result(Error e) noexcept : Result<T*>(e) {}
 
     T& operator()() const noexcept { return *(this->value); }
     T& Value() const noexcept { return *(this->value); }

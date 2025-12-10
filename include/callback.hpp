@@ -277,13 +277,16 @@ public:
 
         for (size_t i = 0; i < ports.Size(); i++) {
             error = const_cast<CallbackPortInitializer<Port_t>&>(portInitializer).execute(ports[i]);
+
             if (error) return error;
         }
 
         this->ports = ports;
 
+
         Port_t max = ports[0];
         for (size_t i = 0; i < ports.Size(); i++) max = max >= ports[i] ? max : ports[i];
+
 
         callbacks = util::Array<Callback<Port_t>>(max + 1);
 

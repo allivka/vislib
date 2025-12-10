@@ -16,24 +16,24 @@ protected:
 
 public:
 
-    Timer(TimeGetter<T>&& timeGetter) noexcept : getter(move(timeGetter)) {}
+    Timer(const TimeGetter<T>& timeGetter) noexcept : getter(timeGetter) {}
 
     Result<T> start() noexcept(assignableNoexcept<T>()) {
 
         Result<T> e = getter();
 
-        if (e) return e.Err();
+        if (e) return e.error();
 
-        startTime = e;
+        startTime = e();
 
         return startTime;
 
     }
 
     Result<T> getTime() const noexcept(numberNoexcept<T>()) {
-        T e = getter();
+        Result<T> e = getter();
 
-        if (e) return e.Err();
+        if (e) return e.error();
 
         if (e() < startTime) return Error{ErrorCode::invalidConfiguration, "The measurement start time is ahead of current time"};
 
@@ -56,13 +56,14 @@ template <typename T> class IncrementTimer {
 
     public:
 
-    IncrementTimer(TimeGetter<T>&& getter) noexcept : getter(move(getter)) {}
+    IncrementTimer(const TimeGetter<T>& getter) noexcept : getter(getter) {}
 
     Result<T> start() noexcept(assignableNoexcept<T>()) {
+        
+        auto e = getter.execute();
 
-        auto e = getter();
+        if(e) return e.error();
 
-        if(e) return e.Err();
         lastTime = e();
 
         if (!flagPaused) {
@@ -78,13 +79,14 @@ template <typename T> class IncrementTimer {
 
         if (flagPaused) return timeBuffer;
 
-        auto e = getter();
+        auto e = getter.execute();
 
-        if(e) return e.Err();
+        if(e) return e.error();
 
         T diff = e() - lastTime;
+        lastTime = e();
 
-        if(diff <= 0) timeBuffer += e();
+        if(diff <= 0) timeBuffer += diff;
         else timeBuffer += diff;
 
         return timeBuffer;

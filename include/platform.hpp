@@ -136,7 +136,7 @@ namespace calculators {
         for(size_t i = 0; i < speeds.Size(); i++) {
             
             util::Result<motor::Speed> t = calculateMotorLinearSpeed(config[i], angle, speed);
-            if(t) return t.Err();
+            if(t) return t.error();
             
             speeds[i] = t;
         }

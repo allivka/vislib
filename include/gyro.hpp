@@ -110,13 +110,13 @@ public:
     virtual util::Result<YPR<T>> getYPR() const noexcept(util::numberNoexcept<T>()) {
         
         util::Result<T> yaw = this->getYaw();
-        if(yaw) return yaw.Err();
+        if(yaw) return yaw.error();
         
         util::Result<T> pitch = this->getPitch();
-        if(pitch) return pitch.Err();
+        if(pitch) return pitch.error();
         
         util::Result<T> roll = this->getRoll();
-        if(roll) return roll.Err();
+        if(roll) return roll.error();
         
         return YPR<T>{yaw(), pitch(), roll()};
     }
@@ -367,13 +367,13 @@ public:
     virtual util::Result<GyroData<YPRType, AccAngularSpeedType>> getGyroData() const noexcept(util::numberNoexcept<YPRType>() && util::numberNoexcept<AccAngularSpeedType>()) {
         
         util::Result<YPR<YPRType>> ypr = this->getYPR();
-        if(ypr) return ypr.Err();
+        if(ypr) return ypr.error();
         
         util::Result<util::Vector<AccAngularSpeedType>> acceleration = this->getAcceleration();
-        if(acceleration) return acceleration.Err();
+        if(acceleration) return acceleration.error();
         
         util::Result<util::Vector<AccAngularSpeedType>> speed = this->getAngularSpeed();
-        if(speed) return speed.Err();
+        if(speed) return speed.error();
         
         return GyroData<YPRType, AccAngularSpeedType>{ypr(), acceleration(), speed()};
     }
