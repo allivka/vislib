@@ -2,12 +2,12 @@
 
 robotics c++ template library
 
-## version: 0.0.14
+## version: 0.0.24
 
 ## Description
 
 A "vislib" library provides simple templated solutions for containers, simple memory management and utility and math functions.
-Also includes abstract classes or interfaces for control of some device types + some controllers and abstractions related to robotics concepts.
+
 
 ## Installation
 
@@ -22,3 +22,7 @@ lib_deps =
     alivka/vislib
     ...
 ```
+
+## Documentation
+
+Library is currently in an active development stage => no useful documentation will be provided in a near future.
