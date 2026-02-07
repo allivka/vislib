@@ -10,6 +10,7 @@
 #include "abstract.hpp"
 #include "memory.hpp"
 #include "angle.hpp"
+#include "macros.hpp"
 
 namespace vislib::core {
 
